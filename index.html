@@ -1,0 +1,2299 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Guard — 도시를 지키는 스마트 데이터 네트워크</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta name="description" content="1,336개 시설관리 업체의 중대재해·도로법 리스크를 원천 방어. 시니어 전문 요원 + AI 예측 라우팅으로 구축하는 스마트 도심 안전망.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { theme: { extend: { colors: { dw: { yellow: '#FEBD17', gold: '#E5A800', black: '#0F0F0F', dark: '#1A1A1A', mid: '#2A2A2A', light: '#3D3D3D' } }, fontFamily: { oswald: ['Oswald', 'sans-serif'], barlow: ['Barlow Condensed', 'sans-serif'], ko: ['Pretendard', 'Noto Sans KR', 'sans-serif'] } } } }</script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <style>
+    :root {
+      --dw-yellow: #FEBD17;
+      --dw-gold: #E5A800;
+      --dw-black: #0A0A0F;
+      --dw-dark: #13131A;
+      --dw-mid: #1E1E2A;
+      --dw-accent: #FEBD17;
+      --dw-blue: #3B82F6;
+      --dw-teal: #14B8A6;
+    }
+
+    body {
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      background: var(--dw-black);
+      color: #fff;
+    }
+
+    h1,
+    h2,
+    h3,
+    .headline {
+      font-family: 'Oswald', 'Pretendard', sans-serif;
+      letter-spacing: -0.01em;
+    }
+
+    @keyframes marquee {
+      0% {
+        transform: translateX(0)
+      }
+
+      100% {
+        transform: translateX(-50%)
+      }
+    }
+
+    .animate-marquee {
+      animation: marquee 40s linear infinite;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .fade-in-up {
+      animation: fadeInUp 0.7s ease-out forwards;
+    }
+
+    @keyframes pack {
+      0% {
+        transform: scale(0.92);
+        opacity: 0
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1
+      }
+    }
+
+    .pack-anim {
+      animation: pack 0.3s ease-out forwards;
+    }
+
+    /* Tab system */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Admin grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 260px 1fr 300px;
+      height: calc(100vh - 56px);
+      overflow: hidden;
+    }
+
+    .panel {
+      background: var(--dw-dark);
+      border: 1px solid #333;
+    }
+
+    /* Scrollbar */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--dw-yellow);
+    }
+
+    /* Badges */
+    .badge {
+      padding: 2px 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border-radius: 2px;
+    }
+
+    .badge-A {
+      background: #FF3B30;
+      color: #fff;
+    }
+
+    .badge-B {
+      background: var(--dw-yellow);
+      color: #000;
+    }
+
+    .badge-C {
+      background: #22c55e;
+      color: #fff;
+    }
+
+    .chart-container {
+      position: relative;
+      width: 100%;
+    }
+
+    /* Modern card style */
+    .dw-card {
+      background: linear-gradient(135deg, #13131A 0%, #1A1A24 100%);
+      border: 1px solid rgba(254, 189, 23, 0.15);
+      border-top: 3px solid var(--dw-yellow);
+      border-radius: 4px;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dw-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(254, 189, 23, 0.5), transparent);
+    }
+
+    .dw-card:hover {
+      border-color: rgba(254, 189, 23, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(254, 189, 23, 0.12);
+    }
+
+    /* Tech card for control */
+    .tech-card {
+      background: linear-gradient(135deg, #13131A 0%, #1A1A24 100%);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-top: 3px solid var(--dw-yellow);
+      border-radius: 4px;
+      transition: all 0.25s ease;
+    }
+
+    .tech-card:hover {
+      border-color: rgba(254, 189, 23, 0.3);
+      box-shadow: 0 8px 32px rgba(254, 189, 23, 0.08);
+    }
+
+    /* Yellow glow */
+    .dw-glow {
+      box-shadow: 0 0 40px rgba(254, 189, 23, 0.3), 0 0 80px rgba(254, 189, 23, 0.1);
+    }
+
+    /* Stripe pattern background */
+    .dw-stripe {
+      background-image:
+        radial-gradient(ellipse at 20% 50%, rgba(254, 189, 23, 0.03) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.04) 0%, transparent 60%),
+        repeating-linear-gradient(-45deg,
+          transparent,
+          transparent 12px,
+          rgba(254, 189, 23, 0.025) 12px,
+          rgba(254, 189, 23, 0.025) 13px);
+    }
+
+    /* Nav tab buttons */
+    .tab-btn {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      border-radius: 0 !important;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active-tab {
+      background: var(--dw-yellow) !important;
+      color: #000 !important;
+    }
+
+    /* Stat number accent */
+    .dw-stat-num {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 700;
+      color: var(--dw-yellow);
+    }
+
+    /* Section accent glow */
+    .section-glow {
+      background: radial-gradient(ellipse at top, rgba(254, 189, 23, 0.05) 0%, transparent 60%);
+    }
+
+    /* Glass morphism card */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+    }
+
+    /* Gradient text */
+    .gradient-text {
+      background: linear-gradient(135deg, #FEBD17, #FF8C00);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Animation: shimmer */
+    @keyframes shimmer {
+      0% {
+        background-position: -200% center;
+      }
+
+      100% {
+        background-position: 200% center;
+      }
+    }
+
+    /* Hover lift effect */
+    .hover-lift {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hover-lift:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+  </style>
+</head>
+
+<body class="overflow-x-hidden" style="background:#0A0A0F;color:#fff">
+
+  <!-- ===== TOP NAV ===== -->
+  <nav id="mainNav" class="fixed top-0 w-full z-50"
+    style="height:64px;background:rgba(10,10,15,0.95);backdrop-filter:blur(20px);border-bottom:2px solid rgba(254,189,23,0.7);box-shadow:0 4px 30px rgba(0,0,0,0.5)">
+    <div class="container mx-auto px-4 h-full flex justify-between items-center">
+      <!-- 로고 — 전달받은 로고 이미지 그대로 -->
+      <div class="flex items-center cursor-pointer" onclick="switchTab('home')">
+        <div style="display:flex;flex-direction:column;line-height:1.2">
+          <span
+            style="font-family:'Oswald',sans-serif;font-weight:900;font-size:1.5rem;letter-spacing:-0.01em;color:#FEBD17;text-shadow:0 0 24px rgba(254,189,23,0.4)">SILVER
+            GUARD</span>
+          <span
+            style="font-family:'Noto Sans KR',sans-serif;font-size:0.65rem;font-weight:400;color:#888;letter-spacing:0.01em;margin-top:3px">AI
+            기반 스마트시티 데이터 관제 플랫폼</span>
+        </div>
+      </div>
+      <!-- 네비 탭 -->
+      <div class="flex gap-0">
+        <button onclick="switchTab('home')" id="tab-home" class="tab-btn active-tab px-4 py-2 text-black"
+          style="background:#FEBD17;font-family:'Oswald',sans-serif;font-weight:700;font-size:0.85rem;letter-spacing:0.06em">HOME</button>
+        <button onclick="switchTab('ir')" id="tab-ir" class="tab-btn px-4 py-2 transition"
+          style="background:transparent;color:#aaa;border-left:1px solid rgba(255,255,255,0.08);font-family:'Oswald',sans-serif;font-weight:600;font-size:0.85rem;letter-spacing:0.06em"
+          onmouseover="if(!this.classList.contains('active-tab')){this.style.color='#FEBD17';this.style.background='rgba(254,189,23,0.08)'}"
+          onmouseout="if(!this.classList.contains('active-tab')){this.style.color='#aaa';this.style.background='transparent'}">BUSINESS</button>
+        <button onclick="switchTab('admin')" id="tab-admin" class="tab-btn px-4 py-2 transition"
+          style="background:transparent;color:#aaa;border-left:1px solid rgba(255,255,255,0.08);font-family:'Oswald',sans-serif;font-weight:600;font-size:0.85rem;letter-spacing:0.06em"
+          onmouseover="if(!this.classList.contains('active-tab')){this.style.color='#FEBD17';this.style.background='rgba(254,189,23,0.08)'}"
+          onmouseout="if(!this.classList.contains('active-tab')){this.style.color='#aaa';this.style.background='transparent'}">CONTROL</button>
+        <button onclick="switchTab('data')" id="tab-data" class="tab-btn px-4 py-2 transition"
+          style="background:transparent;color:#aaa;border-left:1px solid rgba(255,255,255,0.08);font-family:'Oswald',sans-serif;font-weight:600;font-size:0.85rem;letter-spacing:0.06em"
+          onmouseover="if(!this.classList.contains('active-tab')){this.style.color='#FEBD17';this.style.background='rgba(254,189,23,0.08)'}"
+          onmouseout="if(!this.classList.contains('active-tab')){this.style.color='#aaa';this.style.background='transparent'}">DATA</button>
+      </div>
+    </div>
+  </nav>
+
+  <div style="padding-top:64px">
+
+    <!-- ==================== TAB 1: HOME ==================== -->
+    <div id="content-home" class="tab-content active">
+
+      <!-- HERO -->
+      <header class="relative min-h-screen flex flex-col justify-center items-center overflow-hidden"
+        style="background:linear-gradient(135deg, #0A0A0F 0%, #0F0F1A 50%, #0A0A12 100%)">
+        <!-- BG City image -->
+        <div class="absolute inset-0"
+          style="background:url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?q=80&w=2070') center/cover;opacity:0.12">
+        </div>
+        <!-- Black overlay + diagonal yellow accent -->
+        <div class="absolute inset-0"
+          style="background:linear-gradient(160deg,rgba(10,10,15,0.97) 40%,rgba(254,189,23,0.06) 80%,rgba(59,130,246,0.04) 100%)">
+        </div>
+        <!-- Radial glow accents -->
+        <div class="absolute"
+          style="top:20%;right:10%;width:600px;height:600px;background:radial-gradient(circle,rgba(254,189,23,0.05) 0%,transparent 70%);pointer-events:none">
+        </div>
+        <div class="absolute"
+          style="bottom:10%;left:5%;width:400px;height:400px;background:radial-gradient(circle,rgba(59,130,246,0.04) 0%,transparent 70%);pointer-events:none">
+        </div>
+        <!-- Yellow diagonal stripe accent -->
+        <div class="absolute" style="top:0;right:0;width:6px;height:100%;background:#FEBD17"></div>
+        <div class="absolute" style="top:0;right:12px;width:2px;height:60%;background:#FEBD17;opacity:0.4"></div>
+        <!-- Grid overlay -->
+        <div class="absolute inset-0"
+          style="background-image:linear-gradient(rgba(254,189,23,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(254,189,23,0.06) 1px,transparent 1px);background-size:60px 60px;opacity:0.6">
+        </div>
+
+        <div class="relative z-10 container mx-auto px-6 md:px-12">
+          <!-- Status badge -->
+          <div class="flex items-center gap-2 mb-6 fade-in-up"
+            style="display:inline-flex;border:2px solid #FEBD17;padding:6px 14px;">
+            <span class="flex h-2.5 w-2.5 relative">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                style="background:#FEBD17"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5" style="background:#FEBD17"></span>
+            </span>
+            <span
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.8rem;letter-spacing:0.1em;color:#FEBD17">LIVE
+              · 11만개 공공 데이터 실시간 수신중</span>
+          </div>
+
+          <div
+            style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.75rem;letter-spacing:0.2em;color:#888;margin-bottom:12px"
+            class="fade-in-up">도시 안전 데이터 · AI 스마트시티 관제 플랫폼</div>
+
+          <h1 class="fade-in-up"
+            style="font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(3rem,8vw,6rem);line-height:1.05;margin-bottom:24px">
+            <span style="color:#fff">도시의 사각지대를</span><br>
+            <span style="color:#FEBD17">데이터 자산으로.</span>
+          </h1>
+
+          <div class="fade-in-up"
+            style="border-left:4px solid #FEBD17;padding-left:20px;margin-bottom:40px;max-width:640px">
+            <p style="font-size:1.1rem;color:#aaa;line-height:1.7">
+              실버가드는 도시의 시니어를 <strong style="color:#fff">전문 데이터 요원</strong>으로 전환하여,<br>
+              가장 정밀하고 경제적인 <strong style="color:#FEBD17">스마트시티 데이터 네트워크</strong>를 구축합니다.
+            </p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-4 fade-in-up">
+            <button onclick="switchTab('admin')"
+              style="background:#FEBD17;color:#000;font-family:'Oswald',sans-serif;font-weight:700;font-size:1.2rem;letter-spacing:0.1em;text-transform:uppercase;padding:19px 43px;border:none;cursor:pointer;transition:all 0.15s"
+              onmouseover="this.style.background='#E5A800'" onmouseout="this.style.background='#FEBD17'">
+              관제 센터 체험 &gt;&gt;
+            </button>
+            <button onclick="switchTab('ir')"
+              style="background:transparent;color:#fff;font-family:'Oswald',sans-serif;font-weight:600;font-size:1.2rem;letter-spacing:0.1em;text-transform:uppercase;padding:19px 43px;border:2px solid #444;cursor:pointer;transition:all 0.15s"
+              onmouseover="this.style.borderColor='#FEBD17';this.style.color='#FEBD17'"
+              onmouseout="this.style.borderColor='#444';this.style.color='#fff'">
+              IR 자료 보기
+            </button>
+          </div>
+        </div>
+
+        <!-- ticker + ⑤ CAUTION stripe -->
+        <div class="absolute w-full" style="bottom:0;background:rgba(0,0,0,0.92)">
+          <!-- CAUTION 스트라이프 — 0.5/10 강도 -->
+          <div
+            style="height:4px;background:repeating-linear-gradient(90deg,#FEBD17 0px,#FEBD17 16px,#000 16px,#000 24px);opacity:0.55">
+          </div>
+          <div style="border-bottom:3px solid #FEBD17;padding:16px 0">
+            <div class="flex gap-8 animate-marquee whitespace-nowrap" id="heroTicker"></div>
+          </div>
+        </div>
+      </header>
+
+
+      <!-- STATS -->
+      <section
+        style="background:linear-gradient(135deg,#181820 0%,#1E1E2A 100%);border-bottom:1px solid rgba(254,189,23,0.12)">
+        <div class="container mx-auto px-6">
+          <div class="grid grid-cols-2 md:grid-cols-4">
+            <div class="text-center hover-lift" style="padding:36px 16px;border-right:1px solid rgba(254,189,23,0.1)">
+              <p class="dw-stat-num"
+                style="font-size:2.8rem;margin-bottom:6px;text-shadow:0 0 30px rgba(254,189,23,0.5)">11만개+</p>
+              <p style="font-size:0.72rem;color:#888;letter-spacing:0.1em;text-transform:uppercase">공공 API 실시간 수신</p>
+            </div>
+            <div class="text-center hover-lift" style="padding:36px 16px;border-right:1px solid rgba(254,189,23,0.1)">
+              <p class="dw-stat-num"
+                style="font-size:2.8rem;margin-bottom:6px;text-shadow:0 0 30px rgba(254,189,23,0.5)">4배</p>
+              <p style="font-size:0.72rem;color:#888;letter-spacing:0.1em;text-transform:uppercase">커버리지 확대 효과</p>
+            </div>
+            <div class="text-center hover-lift" style="padding:36px 16px;border-right:1px solid rgba(254,189,23,0.1)">
+              <p class="dw-stat-num"
+                style="font-size:2.8rem;margin-bottom:6px;text-shadow:0 0 30px rgba(254,189,23,0.5)">98%</p>
+              <p style="font-size:0.72rem;color:#888;letter-spacing:0.1em;text-transform:uppercase">보고서 자동화율</p>
+            </div>
+            <div class="text-center hover-lift" style="padding:36px 16px">
+              <p class="dw-stat-num"
+                style="font-size:2.8rem;margin-bottom:6px;text-shadow:0 0 30px rgba(254,189,23,0.5)">1,336개</p>
+              <p style="font-size:0.72rem;color:#888;letter-spacing:0.1em;text-transform:uppercase">시설관리 대상 업체</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROBLEM SECTION -->
+      <section class="dw-stripe section-glow" style="background:#0A0A0F;padding:80px 0">
+        <div class="container mx-auto px-6">
+          <div style="margin-bottom:56px">
+            <div
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.75rem;letter-spacing:0.2em;color:#FEBD17;text-transform:uppercase;margin-bottom:8px">
+              THE REALITY</div>
+            <h2
+              style="font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(1.8rem,4vw,3rem);color:#fff;border-left:5px solid #FEBD17;padding-left:16px">
+              도시 데이터에는 세 가지 빈틈이 있습니다</h2>
+          </div>
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="dw-card" style="padding:36px">
+              <div
+                style="width:52px;height:52px;background:#2a2a2a;border:2px solid #FEBD17;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:1.5rem;color:#FEBD17">
+                <i class="ri-eye-off-line"></i>
+              </div>
+              <h3
+                style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.2rem;color:#fff;margin-bottom:10px">
+                도시 곳곳의 데이터 공백</h3>
+              <p style="color:#888;font-size:0.9rem;line-height:1.7">수천억이 투입된 스마트시티에도 이면도로·골목길·주차장은 여전히 <strong
+                  style="color:#fff">데이터가 닿지 않는 사각지대</strong>입니다.</p>
+            </div>
+            <div class="dw-card" style="padding:36px;border-top:4px solid #FEBD17">
+              <div
+                style="width:52px;height:52px;background:#2a2a2a;border:2px solid #FEBD17;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:1.5rem;color:#FEBD17">
+                <i class="ri-shield-check-line"></i>
+              </div>
+              <h3
+                style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.2rem;color:#fff;margin-bottom:10px">
+                강화되는 안전 관리 기준</h3>
+              <p style="color:#888;font-size:0.9rem;line-height:1.7">시설물 점검 의무가 빠르게 강화되고 있습니다. 법적 증거를 체계적으로 남기는 <strong
+                  style="color:#FEBD17">디지털 기록 체계</strong>가 필요한 시대입니다.</p>
+            </div>
+            <div class="dw-card" style="padding:36px">
+              <div
+                style="width:52px;height:52px;background:#2a2a2a;border:2px solid #FEBD17;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:1.5rem;color:#FEBD17">
+                <i class="ri-team-line"></i>
+              </div>
+              <h3
+                style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.2rem;color:#fff;margin-bottom:10px">
+                인력 수급의 어려움</h3>
+              <p style="color:#888;font-size:0.9rem;line-height:1.7">관할 구역은 넓어지는데 현장 인력 확보는 점점 어려워집니다. <strong
+                  style="color:#fff">지속 가능한 운영 구조</strong>가 필요합니다.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SOLUTION: VISUAL STORY — 풀너비 히어로 비주얼 -->
+      <section style="position:relative;overflow:hidden;min-height:720px;display:flex;align-items:center">
+        <!-- 배경 이미지 — 얼굴+다리 모두 보이게 크게 -->
+        <img src="safety-asset-hero.png"
+          style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 40%"
+          alt="공공데이터 + 시니어 인력 = Safety Asset">
+        <!-- 다크 그라디언트 오버레이 — 왼쪽 텍스트 가독성 -->
+        <div
+          style="position:absolute;inset:0;background:linear-gradient(to right,rgba(5,5,10,0.92) 0%,rgba(5,5,10,0.75) 45%,rgba(5,5,10,0.2) 75%,transparent 100%)">
+        </div>
+        <!-- 아래쪽 페이드 -->
+        <div
+          style="position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to top,#0A0A0F,transparent)">
+        </div>
+        <!-- 황금 세로 라인 액센트 -->
+        <div
+          style="position:absolute;top:0;left:0;width:5px;height:100%;background:linear-gradient(to bottom,#FEBD17,#E5A800)">
+        </div>
+
+        <!-- 콘텐츠 -->
+        <div class="container mx-auto px-6 relative z-10" style="padding-top:80px;padding-bottom:80px">
+          <div style="max-width:600px">
+            <span
+              style="background:#FEBD17;color:#000;font-family:'Oswald',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.15em;padding:5px 12px;display:inline-block;margin-bottom:24px">HUMAN-TO-DATA
+              SOLUTION</span>
+
+            <h2
+              style="font-family:'Oswald',sans-serif;font-weight:900;font-size:clamp(2rem,4.5vw,3.2rem);color:#fff;line-height:1.1;margin-bottom:12px">
+              공공데이터 + 시니어 인력<br>
+              <span style="color:#FEBD17">=&nbsp;Safety Asset</span>
+            </h2>
+            <p style="color:#bbb;font-size:1rem;line-height:1.8;margin-bottom:32px;max-width:480px">
+              실버가드는 두 가지 자원을 연결합니다.<br>
+              <strong style="color:#fff">11만 개 공공 API</strong>로 위험을 예측하고,<br>
+              <strong style="color:#FEBD17">유휴 시니어 인력</strong>이 현장을 직접 방어합니다.
+            </p>
+
+            <!-- 공식 배지 -->
+            <div
+              style="display:inline-flex;align-items:center;gap:0;background:rgba(0,0,0,0.6);border:1px solid rgba(254,189,23,0.4);backdrop-filter:blur(8px)">
+              <div style="text-align:center;padding:16px 20px;border-right:1px solid rgba(254,189,23,0.2)">
+                <i class="ri-database-2-line"
+                  style="font-size:1.6rem;color:#FEBD17;display:block;margin-bottom:4px"></i>
+                <p style="font-size:0.6rem;color:#888;letter-spacing:0.1em;text-transform:uppercase">Public Data</p>
+              </div>
+              <div style="color:#FEBD17;font-size:1.8rem;font-weight:900;padding:0 16px">+</div>
+              <div style="text-align:center;padding:16px 20px;border-right:1px solid rgba(254,189,23,0.2)">
+                <i class="ri-user-star-line" style="font-size:1.6rem;color:#FEBD17;display:block;margin-bottom:4px"></i>
+                <p style="font-size:0.6rem;color:#888;letter-spacing:0.1em;text-transform:uppercase">Senior Force</p>
+              </div>
+              <div style="color:#FEBD17;font-size:1.8rem;font-weight:900;padding:0 16px">=</div>
+              <div style="text-align:center;padding:16px 20px">
+                <i class="ri-shield-check-line" style="font-size:1.6rem;color:#fff;display:block;margin-bottom:4px"></i>
+                <p style="font-size:0.6rem;color:#FEBD17;letter-spacing:0.1em;text-transform:uppercase;font-weight:700">
+                  Safety Asset</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- 1100만 시니어 솔루션 섹션 -->
+      <section class="dw-stripe" style="background:#111;padding:80px 0">
+        <div class="container mx-auto px-6" style="max-width:72rem">
+          <div style="margin-bottom:56px">
+            <div
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.75rem;letter-spacing:0.2em;color:#FEBD17;text-transform:uppercase;margin-bottom:8px">
+              THE SCALE</div>
+            <h2
+              style="font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(2rem,5vw,3.5rem);color:#fff;line-height:1.1;margin-bottom:16px">
+              <span style="color:#FEBD17">1,100만</span>의 시니어를<br>데이터 요원으로 양성한다면?
+            </h2>
+            <p style="color:#888;font-size:1rem;max-width:36rem;line-height:1.7">
+              한국의 65세 이상 인구는 <strong style="color:#fff">1,100만 명</strong>.
+              이 분들이 도시 인프라의 <strong style="color:#FEBD17">능동적 수호자</strong>가 된다면, 세계 어떤 나라도 흉내낼 수 없는 인간 데이터 네트워크가 완성됩니다.
+            </p>
+          </div>
+          <div class="grid md:grid-cols-3 gap-6" style="margin-bottom:40px">
+            <div class="dw-card" style="padding:32px;text-align:center">
+              <div class="dw-stat-num" style="font-size:3rem;margin-bottom:8px">1,100만</div>
+              <div style="font-family:'Oswald',sans-serif;font-weight:600;color:#fff;margin-bottom:8px">잠재 데이터 요원</div>
+              <p style="color:#666;font-size:0.85rem">국내 65세 이상 시니어 인구.<br>활동 반경 내 모든 사각지대 커버 가능.</p>
+            </div>
+            <div class="dw-card" style="padding:32px;text-align:center">
+              <div class="dw-stat-num" style="font-size:3rem;margin-bottom:8px">3,500개</div>
+              <div style="font-family:'Oswald',sans-serif;font-weight:600;color:#fff;margin-bottom:8px">읍·면·동 생활권</div>
+              <p style="color:#666;font-size:0.85rem">국가 단위 실시간 도시 인프라 모니터링 실현.</p>
+            </div>
+            <div class="dw-card" style="padding:32px;text-align:center">
+              <div class="dw-stat-num" style="font-size:3rem;margin-bottom:8px">2031</div>
+              <div style="font-family:'Oswald',sans-serif;font-weight:600;color:#fff;margin-bottom:8px">초고령사회 원년</div>
+              <p style="color:#666;font-size:0.85rem">전체 인구의 20% 시니어.<br>실버가드 모델이 가장 필요한 시점.</p>
+            </div>
+          </div>
+          <div
+            style="background:#111;border:1px solid #2a2a2a;border-left:4px solid #FEBD17;padding:32px;text-align:center">
+            <p style="color:#aaa;font-size:1.05rem;line-height:1.7">
+              실버가드는 <strong style="color:#FEBD17">11만개 공공 데이터</strong>를 실시간 수신하며 도시의 위험을 선제 감지합니다.<br>
+              지금 이 순간, 확장의 설계도가 완성되어 있습니다.
+            </p>
+            <button onclick="switchTab('ir')"
+              style="margin-top:24px;background:#FEBD17;color:#000;font-family:'Oswald',sans-serif;font-weight:700;font-size:0.95rem;letter-spacing:0.1em;text-transform:uppercase;padding:12px 32px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all 0.15s"
+              onmouseover="this.style.background='#E5A800'" onmouseout="this.style.background='#FEBD17'">
+              확장 전략 보기 <i class="ri-arrow-right-line"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SOLUTION: PRO-AGENT -->
+      <section style="background:#0F0F0F;overflow:hidden">
+        <div class="flex flex-col lg:flex-row-reverse">
+          <!-- PRO-AGENT 이미지 — 전문가의 제복, 실제 현장 요원 -->
+          <div class="lg:w-1/2 relative" style="min-height:460px;background:#000;overflow:hidden">
+            <img src="vest-photo.png"
+              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;opacity:0.95"
+              alt="실버가드 시니어 Pro-Agent 전문가의 제복">
+            <!-- 그라디언트 오버레이 -->
+            <div
+              style="position:absolute;inset:0;background:linear-gradient(to left,rgba(15,15,15,0.7) 0%,transparent 60%)">
+            </div>
+          </div>
+          <div class="lg:w-1/2"
+            style="padding:60px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
+            <span
+              style="font-family:'Oswald',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.2em;color:#FEBD17;text-transform:uppercase;border-bottom:2px solid #FEBD17;padding-bottom:4px;display:inline-block;margin-bottom:20px">PRO-AGENT</span>
+            <h2
+              style="font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(1.6rem,3vw,2.4rem);color:#fff;line-height:1.2;margin-bottom:16px">
+              단순한 조끼가 아닙니다.<br><span style="color:#FEBD17">'&#xC804;&#xBB38;&#xAC00;&#xC758; 제복'</span>입니다.</h2>
+            <p style="color:#888;font-size:1rem;line-height:1.8;margin-bottom:14px">복지의 대상이 아닌 <strong
+                style="color:#fff">도시 안전의 핵심 요원</strong>.<br>스마트 밴드(IoT)·AR 앱·유니폼으로 완성되는<br>디지털 스마트워크를 구현합니다.</p>
+            <!-- CAUTION 스트라이프 — 안전 키워드 시각적 강조, 0.5/10 강도 -->
+            <div
+              style="height:3px;margin-bottom:20px;background:repeating-linear-gradient(90deg,#FEBD17 0px,#FEBD17 14px,#000 14px,#000 20px);opacity:0.18;border-radius:1px">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div style="background:#1a1a1a;padding:16px;border:1px solid #333;border-left:3px solid #FEBD17">
+                <i class="ri-user-star-line" style="font-size:1.5rem;color:#FEBD17;display:block;margin-bottom:8px"></i>
+                <h4
+                  style="font-family:'Oswald',sans-serif;font-weight:700;font-size:0.9rem;color:#fff;margin-bottom:4px">
+                  Pro-Agent 양성</h4>
+                <p style="color:#666;font-size:0.8rem">AR 가이드라인으로 누구나 전문 데이터 수집가.</p>
+              </div>
+              <div style="background:#1a1a1a;padding:16px;border:1px solid #333;border-left:3px solid #FEBD17">
+                <i class="ri-heart-pulse-line"
+                  style="font-size:1.5rem;color:#FEBD17;display:block;margin-bottom:8px"></i>
+                <h4
+                  style="font-family:'Oswald',sans-serif;font-weight:700;font-size:0.9rem;color:#fff;margin-bottom:4px">
+                  건강 모니터링</h4>
+                <p style="color:#666;font-size:0.8rem">스마트 밴드 IoT 연동 실시간 안전 관제.</p>
+              </div>
+              <div style="background:#1a1a1a;padding:16px;border:1px solid #333;border-left:3px solid #FEBD17">
+                <i class="ri-map-pin-range-line"
+                  style="font-size:1.5rem;color:#FEBD17;display:block;margin-bottom:8px"></i>
+                <h4
+                  style="font-family:'Oswald',sans-serif;font-weight:700;font-size:0.9rem;color:#fff;margin-bottom:4px">
+                  Geo-fencing 인증</h4>
+                <p style="color:#666;font-size:0.8rem">50m 반경 진입 시에만 앱 활성화. 부정수급 차단.</p>
+              </div>
+              <div style="background:#1a1a1a;padding:16px;border:1px solid #333;border-left:3px solid #FEBD17">
+                <i class="ri-award-line" style="font-size:1.5rem;color:#FEBD17;display:block;margin-bottom:8px"></i>
+                <h4
+                  style="font-family:'Oswald',sans-serif;font-weight:700;font-size:0.9rem;color:#fff;margin-bottom:4px">
+                  자존감 회복</h4>
+                <p style="color:#666;font-size:0.8rem">사회 기여형 전문직으로 삶의 보람을 찾습니다.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROCESS: HOW IT WORKS -->
+      <section id="solution" style="background:#1A1A1A;padding:80px 0">
+        <div class="container mx-auto px-6">
+          <div style="margin-bottom:56px">
+            <div
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.75rem;letter-spacing:0.2em;color:#FEBD17;text-transform:uppercase;margin-bottom:8px">
+              HOW IT WORKS</div>
+            <h2 style="font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(1.8rem,4vw,3rem);color:#fff">AI가
+              예측하고, 시니어가 방어한다</h2>
+            <p style="color:#666;margin-top:8px">매일 오전 8시, AI가 동선을 생성하고 시니어 요원에게 전달합니다.</p>
+          </div>
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="tech-card" style="padding:32px">
+              <div
+                style="width:48px;height:48px;background:#111;border:2px solid #FEBD17;display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+                <i class="ri-route-line" style="color:#FEBD17;font-size:1.5rem"></i>
+              </div>
+              <div
+                style="font-family:'Oswald',sans-serif;color:#FEBD17;font-size:0.85rem;font-weight:600;letter-spacing:0.12em;margin-bottom:8px">
+                STEP 01</div>
+              <h4
+                style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.2rem;color:#fff;margin-bottom:12px">
+                AI 사전 예측 라우팅</h4>
+              <p style="color:#666;font-size:0.88rem;line-height:1.7">3년치 안전신문고 데이터 + 기상청 실시간 데이터로 위험 구역을 예측합니다. 매일
+                08:00 TSP 알고리즘으로 <strong style="color:#fff">최단 동선</strong>을 자동 생성.</p>
+              <div
+                style="margin-top:16px;padding:12px;background:#111;border:1px solid #2a2a2a;font-size:0.78rem;color:#FEBD17">
+                "비 온 다음 날 A동 이면도로 포트홀 확률 80%" → 선제 파견
+              </div>
+            </div>
+            <div class="tech-card" style="padding:32px">
+              <div
+                style="width:48px;height:48px;background:#111;border:2px solid #FEBD17;display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+                <i class="ri-scan-line" style="color:#FEBD17;font-size:1.5rem"></i>
+              </div>
+              <div
+                style="font-family:'Oswald',sans-serif;color:#FEBD17;font-size:0.85rem;font-weight:600;letter-spacing:0.12em;margin-bottom:8px">
+                STEP 02</div>
+              <h4
+                style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.2rem;color:#fff;margin-bottom:12px">
+                AR 정밀 수집 + 무결성 검증</h4>
+              <p style="color:#666;font-size:0.88rem;line-height:1.7">포켓몳 GO처럼 직관적인 AR 가이드라인으로 누구나 전문가체럼 수집합니다. <strong
+                  style="color:#fff">3-Shot Verification</strong>으로 불량 데이터 자동 차단.</p>
+              <div
+                style="margin-top:16px;padding:12px;background:#111;border:1px solid #2a2a2a;font-size:0.78rem;color:#FEBD17">
+                3각도 촬영 → AI 교차 검증 → Exif 메타데이터 자동 추출
+              </div>
+            </div>
+            <div class="tech-card" style="padding:32px">
+              <div
+                style="width:48px;height:48px;background:#111;border:2px solid #FEBD17;display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+                <i class="ri-file-text-line" style="color:#FEBD17;font-size:1.5rem"></i>
+              </div>
+              <div
+                style="font-family:'Oswald',sans-serif;color:#FEBD17;font-size:0.85rem;font-weight:600;letter-spacing:0.12em;margin-bottom:8px">
+                STEP 03</div>
+              <h4
+                style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.2rem;color:#fff;margin-bottom:12px">
+                HWP 자동 생성 + 법적 아카이브</h4>
+              <p style="color:#666;font-size:0.88rem;line-height:1.7">현장 사진 한 장으로 <strong style="color:#fff">관공서 제출용 HWP
+                  0초 생성</strong>. 매일 17:00 법적 방어 아카이브가 자동 완성됩니다.</p>
+              <div
+                style="margin-top:16px;padding:12px;background:#111;border:1px solid #2a2a2a;font-size:0.78rem;color:#FEBD17">
+                "[도로법 제59조 방어] YYYY-MM-DD 상시 예찰 보고서" 자동 적재
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LIVE DATA PREVIEW -->
+      <section style="background:#0F0F0F;padding:80px 0">
+        <div class="container mx-auto px-6">
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px">
+            <div>
+              <div
+                style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.75rem;letter-spacing:0.2em;color:#FEBD17;text-transform:uppercase;margin-bottom:8px">
+                DATA INTELLIGENCE</div>
+              <h2 style="font-family:'Oswald',sans-serif;font-weight:700;font-size:2rem;color:#fff">실시간 수집 데이터 현황</h2>
+            </div>
+            <div style="text-align:right">
+              <p style="color:#666;font-size:0.85rem">Today Records</p>
+              <p style="font-family:'Oswald',sans-serif;font-size:2.5rem;font-weight:700;color:#FEBD17">2,542 <span
+                  style="font-size:1rem;color:#555;font-weight:400">건</span></p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="liveDataGrid"></div>
+        </div>
+      </section>
+
+      <!-- B2B 단독 플랜 -->
+      <section id="contact" style="padding:100px 0;background:#0F0F0F">
+        <!-- ⑤ CAUTION 스트라이프 상단 장식 -->
+        <div
+          style="height:6px;background:repeating-linear-gradient(90deg,#FEBD17 0px,#FEBD17 18px,#0F0F0F 18px,#0F0F0F 26px);opacity:0.22;margin-bottom:0">
+        </div>
+        <div class="container mx-auto px-6 max-w-5xl" style="margin-top:64px">
+          <div style="text-align:center;margin-bottom:64px">
+            <div
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.9rem;letter-spacing:0.25em;color:#FEBD17;text-transform:uppercase;margin-bottom:12px">
+              FOR BUSINESS</div>
+            <h2
+              style="font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(2.4rem,5vw,3.8rem);color:#fff;line-height:1.1">
+              시설관리 업체의 <span style="color:#FEBD17">믿음직한 솔루션</span></h2>
+            <p style="color:#888;margin-top:16px;font-size:1.05rem">중대재해 방어 + 행정 자동화 + 커버리지 <strong
+                style="color:#FEBD17">4배</strong> 확대</p>
+          </div>
+          <div
+            style="background:#111;border:1px solid #2a2a2a;border-top:6px solid #FEBD17;padding:56px;position:relative">
+            <span
+              style="display:inline-block;padding:6px 16px;background:#1a1a1a;border:1px solid #FEBD17;color:#FEBD17;font-family:'Oswald',sans-serif;font-size:0.85rem;letter-spacing:0.14em;margin-bottom:24px">B2B
+              SaaS · ZONE 구독 솔루션</span>
+            <h3 style="font-family:'Oswald',sans-serif;font-weight:700;font-size:2rem;color:#fff;margin-bottom:6px">
+              시설관리 업체의 믿음직한 솔루션</h3>
+            <p style="color:#666;margin-bottom:32px;font-size:1rem">구역(Zone) 단위 정기 구독 솔루션 — 1개 Zone당 요원 6~8명 배치</p>
+            <div
+              style="background:#0c0c0c;border:1px solid #2a2a2a;border-left:3px solid #FEBD17;padding:24px;margin-bottom:24px">
+              <h4
+                style="font-family:'Oswald',sans-serif;color:#FEBD17;font-size:0.85rem;letter-spacing:0.12em;margin-bottom:16px">
+                ▶ SILVER GUARD 하루 루틴</h4>
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <div style="display:flex;align-items:flex-start;gap:16px">
+                  <span
+                    style="font-family:'Oswald',sans-serif;color:#FEBD17;font-size:0.8rem;min-width:52px">08:00</span>
+                  <div>
+                    <p style="color:#fff;font-size:0.9rem;font-weight:600;margin-bottom:2px">AI 동선 배포</p>
+                    <p style="color:#555;font-size:0.82rem">TSP 알고리즘이 당일 최적 순찰 경로를 생성, 요원 앱으로 자동 전달</p>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:16px">
+                  <span
+                    style="font-family:'Oswald',sans-serif;color:#FEBD17;font-size:0.8rem;min-width:52px">09~16시</span>
+                  <div>
+                    <p style="color:#fff;font-size:0.9rem;font-weight:600;margin-bottom:2px">현장 AR 점검</p>
+                    <p style="color:#555;font-size:0.82rem">시설별 3-Shot 촬영 → AI 자동 검증 → Exif 증거 보존</p>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:16px">
+                  <span
+                    style="font-family:'Oswald',sans-serif;color:#FEBD17;font-size:0.8rem;min-width:52px">17:00</span>
+                  <div>
+                    <p style="color:#fff;font-size:0.9rem;font-weight:600;margin-bottom:2px">HWP 자동 생성 & 아카이브</p>
+                    <p style="color:#555;font-size:0.82rem">관공서 제출용 보고서 0초 완성 → 고객사 대시보드 자동 적재</p>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:16px">
+                  <span style="font-family:'Oswald',sans-serif;color:#FEBD17;font-size:0.8rem;min-width:52px">상시</span>
+                  <div>
+                    <p style="color:#fff;font-size:0.9rem;font-weight:600;margin-bottom:2px">긴급 Spot Injection</p>
+                    <p style="color:#555;font-size:0.82rem">이상 상황 발생 시 내일 순찰 코스에 즉시 반영</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button onclick="switchTab('ir')"
+              style="width:100%;background:#FEBD17;color:#000;font-family:'Oswald',sans-serif;font-weight:700;font-size:1rem;letter-spacing:0.1em;text-transform:uppercase;padding:16px;border:none;cursor:pointer;transition:all 0.15s"
+              onmouseover="this.style.background='#E5A800'" onmouseout="this.style.background='#FEBD17'">IR 자료 보기
+              →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer
+        style="background:linear-gradient(135deg,#0A0A0F 0%,#13131A 100%);color:#fff;padding:64px 0;border-top:2px solid rgba(254,189,23,0.5)">
+        <div class="container mx-auto px-6">
+          <div
+            style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:24px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:40px;margin-bottom:40px">
+            <!-- 푸터 로고 — SG 아이콘 없이 텍스트만 -->
+            <div style="display:flex;align-items:center;gap:12px">
+              <div>
+                <h4
+                  style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.6rem;color:#FEBD17;line-height:1;margin-bottom:4px;text-shadow:0 0 20px rgba(254,189,23,0.3)">
+                  SILVER GUARD</h4>
+                <p style="color:#444;font-size:0.82rem">AI 기반 스마트시티 데이터 관제 플랫폼</p>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <span style="padding:6px 14px;border:1px solid rgba(254,189,23,0.3);font-size:0.75rem;color:#aaa">11만개 데이터
+                실시간 수신중</span>
+              <span style="padding:6px 14px;border:1px solid #333;font-size:0.75rem;color:#666">한국노인인력개발원 협약</span>
+              <span style="padding:6px 14px;border:1px solid #FEBD17;font-size:0.75rem;color:#FEBD17">KBS 생로병사의 비밀
+                방영</span>
+            </div>
+          </div>
+          <div class="grid md:grid-cols-3 gap-10" style="font-size:0.85rem;color:#555">
+            <div>
+              <h5
+                style="font-family:'Oswald',sans-serif;font-weight:600;color:#fff;margin-bottom:12px;letter-spacing:0.08em">
+                CONTACT US</h5>
+              <p>contact@silverguard.co.kr</p>
+            </div>
+            <div>
+              <h5
+                style="font-family:'Oswald',sans-serif;font-weight:600;color:#fff;margin-bottom:12px;letter-spacing:0.08em">
+                SOLUTIONS</h5>
+              <p>도로/교통 위험 감지</p>
+              <p>환경/안전 모니터링</p>
+              <p>시설물 유지보수</p>
+              <p>스마트 인프라 점검</p>
+            </div>
+            <div>
+              <h5
+                style="font-family:'Oswald',sans-serif;font-weight:600;color:#fff;margin-bottom:12px;letter-spacing:0.08em">
+                LEGAL</h5>
+              <p>개인정보처리방침</p>
+              <p>서비스 이용약관</p>
+            </div>
+          </div>
+          <div style="margin-top:40px;text-align:center;font-size:0.75rem;color:#333">&copy; 2025 Silver Guard. All
+            rights reserved.</div>
+        </div>
+      </footer>
+    </div>
+    <!-- END HOME TAB -->
+
+    <!-- ==================== TAB 2: BUSINESS (IR) ==================== -->
+    <div id="content-ir" style="background:#0A0A0F;min-height:100vh;display:none">
+      <div style="max-width:1200px;margin:0 auto;padding:48px 24px;display:flex;flex-direction:column;gap:56px">
+
+        <!-- HERO -->
+        <div style="background:#111;border:1px solid #333;border-top:4px solid #FEBD17;padding:40px">
+          <div class="grid md:grid-cols-2 gap-10 items-center">
+            <div>
+              <span
+                style="background:#FEBD17;color:#000;font-family:'Oswald',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.15em;padding:4px 10px;display:inline-block;margin-bottom:16px">예방행정
+                자동화 플랫폼</span>
+              <h2
+                style="font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(1.8rem,4vw,3rem);color:#fff;line-height:1.15;margin-bottom:16px">
+                규제 대응, 이제<br><span style="color:#FEBD17">전문 파트너</span>와 함께</h2>
+              <p style="color:#888;line-height:1.8">강화되는 시설물안전법 속에서도 <strong style="color:#fff">1,336개 관리업체</strong>가
+                안심하고 운영할 수 있도록, 실버가드가 현장 데이터와 법적 증거를 자동으로 준비합니다. <strong style="color:#fff">시니어 전문 요원 + AI 예측
+                  라우팅</strong>의 통합 솔루션.</p>
+            </div>
+            <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-left:4px solid #FEBD17;padding:24px">
+              <h3
+                style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1rem;color:#fff;letter-spacing:0.1em;margin-bottom:20px">
+                <i class="ri-check-double-line" style="color:#FEBD17;margin-right:8px"></i>3가지 핵심 차별점
+              </h3>
+              <div style="display:flex;flex-direction:column;gap:16px">
+                <div style="display:flex;gap:12px;align-items:flex-start">
+                  <div
+                    style="background:#FEBD17;width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <i class="ri-route-line" style="color:#000"></i>
+                  </div>
+                  <div>
+                    <h4 style="color:#fff;font-size:0.9rem;font-weight:700;margin-bottom:4px">AI Predictive Routing</h4>
+                    <p style="color:#666;font-size:0.8rem">3년치 신문고 + 기상청 데이터로 위험 사전 예측</p>
+                  </div>
+                </div>
+                <div style="display:flex;gap:12px;align-items:flex-start">
+                  <div
+                    style="background:#FEBD17;width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <i class="ri-shield-star-line" style="color:#000"></i>
+                  </div>
+                  <div>
+                    <h4 style="color:#fff;font-size:0.9rem;font-weight:700;margin-bottom:4px">Risk Aversion System</h4>
+                    <p style="color:#666;font-size:0.8rem">중대재해 방어 로직 + 자동 법적 증거 생산</p>
+                  </div>
+                </div>
+                <div style="display:flex;gap:12px;align-items:flex-start">
+                  <div
+                    style="background:#FEBD17;width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <i class="ri-building-line" style="color:#000"></i>
+                  </div>
+                  <div>
+                    <h4 style="color:#fff;font-size:0.9rem;font-weight:700;margin-bottom:4px">Integrated Hybrid Business
+                    </h4>
+                    <p style="color:#666;font-size:0.8rem">Software Platform + Senior Direct Hire의 결합</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4: 문제점 vs 솔루션 — 개선된 2컬럼 레이아웃 -->
+        <div>
+          <div style="text-align:center;margin-bottom:40px">
+            <span
+              style="font-family:'Oswald',sans-serif;font-size:0.75rem;font-weight:600;letter-spacing:0.2em;color:#FEBD17;text-transform:uppercase">PROBLEM
+              vs SOLUTION</span>
+            <h2 style="font-family:'Oswald',sans-serif;font-weight:700;font-size:2rem;color:#fff;margin-top:8px">왜
+              실버가드인가?</h2>
+          </div>
+          <div class="grid md:grid-cols-2 gap-6" style="overflow:hidden">
+
+            <!-- 문제점 패널 -->
+            <div
+              style="background:linear-gradient(135deg,#130a0a 0%,#1a0d0d 100%);padding:36px;position:relative;overflow:hidden;border:1px solid rgba(239,68,68,0.15);border-radius:12px">
+              <!-- 배경 패턴: 위험 사선 -->
+              <div
+                style="position:absolute;inset:0;background:repeating-linear-gradient(-45deg,rgba(239,68,68,0.04) 0px,rgba(239,68,68,0.04) 1px,transparent 1px,transparent 24px);pointer-events:none">
+              </div>
+              <!-- 배경 glow -->
+              <div
+                style="position:absolute;top:0;right:0;width:200px;height:200px;background:radial-gradient(circle,rgba(239,68,68,0.06) 0%,transparent 70%);pointer-events:none">
+              </div>
+              <!-- 상단 라벨 바 -->
+              <div
+                style="display:flex;align-items:center;gap:12px;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid rgba(239,68,68,0.15)">
+                <div
+                  style="width:40px;height:40px;background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:8px">
+                  <i class="ri-error-warning-line" style="color:#ef4444;font-size:1.3rem"></i>
+                </div>
+                <div>
+                  <div
+                    style="font-family:'Oswald',sans-serif;font-size:0.65rem;letter-spacing:0.2em;color:#ef4444;margin-bottom:2px">
+                    CURRENT CHALLENGE</div>
+                  <h2 style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.35rem;color:#fff">현재의 문제점</h2>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div
+                  style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-left:3px solid #ef4444;padding:20px;border-radius:8px;position:relative">
+                  <div style="display:flex;align-items:flex-start;gap:12px">
+                    <div
+                      style="width:36px;height:36px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:8px">
+                      <i class="ri-alert-line" style="color:#ef4444;font-size:1rem"></i>
+                    </div>
+                    <div>
+                      <h3 style="color:#fff;font-size:0.95rem;font-weight:700;margin-bottom:6px">시설물안전법 규제 강화</h3>
+                      <p style="color:#888;font-size:0.82rem;line-height:1.6">2023 정자교 붕괴 → 보수 의무기한 5→3년. 보조인력 기준 급격히
+                        상향, 처벌 강도 급증.</p>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-left:3px solid #ef4444;padding:20px;border-radius:8px;position:relative">
+                  <div style="display:flex;align-items:flex-start;gap:12px">
+                    <div
+                      style="width:36px;height:36px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:8px">
+                      <i class="ri-team-line" style="color:#ef4444;font-size:1rem"></i>
+                    </div>
+                    <div>
+                      <h3 style="color:#fff;font-size:0.95rem;font-weight:700;margin-bottom:6px">만성적 인력 부족</h3>
+                      <p style="color:#888;font-size:0.82rem;line-height:1.6">1,336개 관리업체: 넓은 관할 구역, 고질적 인력 부족, 감당 못 할
+                        인건비.</p>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-left:3px solid #ef4444;padding:20px;border-radius:8px;position:relative">
+                  <div style="display:flex;align-items:flex-start;gap:12px">
+                    <div
+                      style="width:36px;height:36px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:8px">
+                      <i class="ri-money-dollar-circle-line" style="color:#ef4444;font-size:1rem"></i>
+                    </div>
+                    <div>
+                      <h3 style="color:#fff;font-size:0.95rem;font-weight:700;margin-bottom:6px">예산 낭비형 공공 노무</h3>
+                      <p style="color:#888;font-size:0.82rem;line-height:1.6">매년 수십억 노인 일자리 예산이 단순 환경미화로 소모. 생산성 없는 복지.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 솔루션 패널 -->
+            <div
+              style="background:linear-gradient(135deg,#0a100d 0%,#0d1a12 100%);padding:36px;position:relative;overflow:hidden;border:1px solid rgba(254,189,23,0.15);border-radius:12px">
+              <!-- 배경패턴: 성공 사선 -->
+              <div
+                style="position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(254,189,23,0.03) 0px,rgba(254,189,23,0.03) 1px,transparent 1px,transparent 24px);pointer-events:none">
+              </div>
+              <div
+                style="position:absolute;top:0;left:0;width:200px;height:200px;background:radial-gradient(circle,rgba(254,189,23,0.06) 0%,transparent 70%);pointer-events:none">
+              </div>
+              <!-- 상단 라벨 바 -->
+              <div
+                style="display:flex;align-items:center;gap:12px;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid rgba(254,189,23,0.15)">
+                <div
+                  style="width:40px;height:40px;background:rgba(254,189,23,0.2);border:1px solid rgba(254,189,23,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:8px">
+                  <i class="ri-shield-check-line" style="color:#FEBD17;font-size:1.3rem"></i>
+                </div>
+                <div>
+                  <div
+                    style="font-family:'Oswald',sans-serif;font-size:0.65rem;letter-spacing:0.2em;color:#FEBD17;margin-bottom:2px">
+                    OUR SOLUTION</div>
+                  <h2 style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.35rem;color:#fff">실버가드 솔루션</h2>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div
+                  style="background:rgba(254,189,23,0.06);border:1px solid rgba(254,189,23,0.2);border-left:3px solid #FEBD17;padding:20px;border-radius:8px">
+                  <div style="display:flex;align-items:flex-start;gap:12px">
+                    <div
+                      style="width:36px;height:36px;background:rgba(254,189,23,0.15);border:1px solid rgba(254,189,23,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:8px">
+                      <i class="ri-file-shield-2-line" style="color:#FEBD17;font-size:1rem"></i>
+                    </div>
+                    <div>
+                      <h3 style="color:#fff;font-size:0.95rem;font-weight:700;margin-bottom:6px">자동화된 법적 방어</h3>
+                      <p style="color:#999;font-size:0.82rem;line-height:1.6">Exif 메타데이터 + 3-Shot + 매일 HWP 아카이브로 완벽한 법적
+                        증거 자동 생산.</p>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="background:rgba(254,189,23,0.06);border:1px solid rgba(254,189,23,0.2);border-left:3px solid #FEBD17;padding:20px;border-radius:8px">
+                  <div style="display:flex;align-items:flex-start;gap:12px">
+                    <div
+                      style="width:36px;height:36px;background:rgba(254,189,23,0.15);border:1px solid rgba(254,189,23,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:8px">
+                      <i class="ri-radar-line" style="color:#FEBD17;font-size:1rem"></i>
+                    </div>
+                    <div>
+                      <h3 style="color:#fff;font-size:0.95rem;font-weight:700;margin-bottom:6px">4배 감시망 확대</h3>
+                      <p style="color:#999;font-size:0.82rem;line-height:1.6">중급 기술자 1명 비용으로 시니어 요원 4명 운용. AI 동선 최적화로
+                        커버리지 극대화.</p>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="background:rgba(254,189,23,0.06);border:1px solid rgba(254,189,23,0.2);border-left:3px solid #FEBD17;padding:20px;border-radius:8px">
+                  <div style="display:flex;align-items:flex-start;gap:12px">
+                    <div
+                      style="width:36px;height:36px;background:rgba(254,189,23,0.15);border:1px solid rgba(254,189,23,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:8px">
+                      <i class="ri-award-fill" style="color:#FEBD17;font-size:1rem"></i>
+                    </div>
+                    <div>
+                      <h3 style="color:#fff;font-size:0.95rem;font-weight:700;margin-bottom:6px">가치 창출형 일자리</h3>
+                      <p style="color:#999;font-size:0.82rem;line-height:1.6">단순 노무에서 Pro-Agent로. 전문 데이터 수집 요원으로서의 자부심과
+                        보람.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI 기술 차별성 -->
+      <div style="background:#111;border:1px solid #333;padding:40px">
+        <div style="margin-bottom:32px">
+          <span
+            style="font-family:'Oswald',sans-serif;font-size:0.75rem;font-weight:600;letter-spacing:0.2em;color:#FEBD17;text-transform:uppercase">TECHNOLOGY</span>
+          <h2 style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.8rem;color:#fff;margin-top:8px">AI 기술
+            차별성</h2>
+          <p style="color:#666;font-size:0.9rem">단순 플랫폼이 아닌, 검증된 운영 기술력</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div
+            style="display:flex;gap:16px;background:#1a1a1a;padding:20px;border:1px solid #2a2a2a;border-left:3px solid #FEBD17">
+            <div
+              style="background:#FEBD17;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="ri-route-line" style="color:#000;font-size:1.2rem"></i>
+            </div>
+            <div>
+              <h4 style="color:#FEBD17;font-family:'Oswald',sans-serif;font-weight:700;margin-bottom:6px">AI
+                Predictive Routing</h4>
+              <p style="color:#666;font-size:0.85rem">3년치 안전신문고 + 기상청 데이터로 위험 사전 예측. 시민의 불만이 접수되기 전 선제 파견.</p>
+            </div>
+          </div>
+          <div
+            style="display:flex;gap:16px;background:#1a1a1a;padding:20px;border:1px solid #2a2a2a;border-left:3px solid #FEBD17">
+            <div
+              style="background:#FEBD17;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="ri-donut-chart-line" style="color:#000;font-size:1.2rem"></i>
+            </div>
+            <div>
+              <h4 style="color:#FEBD17;font-family:'Oswald',sans-serif;font-weight:700;margin-bottom:6px">Polygon 단위
+                방어망</h4>
+              <p style="color:#666;font-size:0.85rem">점(Point)이 아닌 구역(Polygon) 단위 관리. 지도 API로 고객 관할 구역 완벽 커버.</p>
+            </div>
+          </div>
+          <div
+            style="display:flex;gap:16px;background:#1a1a1a;padding:20px;border:1px solid #2a2a2a;border-left:3px solid #FEBD17">
+            <div
+              style="background:#FEBD17;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="ri-camera-3-line" style="color:#000;font-size:1.2rem"></i>
+            </div>
+            <div>
+              <h4 style="color:#FEBD17;font-family:'Oswald',sans-serif;font-weight:700;margin-bottom:6px">3-Shot
+                Verification</h4>
+              <p style="color:#666;font-size:0.85rem">3각도 촬영 + AI 자동 필터링으로 데이터 무결성 보장. AI 데이터 통과율 95.4점.</p>
+            </div>
+          </div>
+          <div
+            style="display:flex;gap:16px;background:#1a1a1a;padding:20px;border:1px solid #2a2a2a;border-left:3px solid #FEBD17">
+            <div
+              style="background:#FEBD17;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="ri-thunderstorms-line" style="color:#000;font-size:1.2rem"></i>
+            </div>
+            <div>
+              <h4 style="color:#FEBD17;font-family:'Oswald',sans-serif;font-weight:700;margin-bottom:6px">실시간 등급 자동 격상
+              </h4>
+              <p style="color:#666;font-size:0.85rem">기상청 강풍주의보 수신 시 Code C → Code A로 자동 격상 및 즉시 배정.</p>
+            </div>
+          </div>
+          <div
+            style="display:flex;gap:16px;background:#1a1a1a;padding:20px;border:1px solid #2a2a2a;border-left:3px solid #FEBD17">
+            <div
+              style="background:#FEBD17;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="ri-map-pin-2-line" style="color:#000;font-size:1.2rem"></i>
+            </div>
+            <div>
+              <h4 style="color:#FEBD17;font-family:'Oswald',sans-serif;font-weight:700;margin-bottom:6px">50m
+                Geo-fencing 인증</h4>
+              <p style="color:#666;font-size:0.85rem">배정 구역 반경 50m 이내 진입 시에만 앱 활성화. 노무 부정수급 원천 차단.</p>
+            </div>
+          </div>
+          <div
+            style="display:flex;gap:16px;background:#1a1a1a;padding:20px;border:1px solid #2a2a2a;border-left:3px solid #FEBD17">
+            <div
+              style="background:#FEBD17;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="ri-heart-pulse-line" style="color:#000;font-size:1.2rem"></i>
+            </div>
+            <div>
+              <h4 style="color:#FEBD17;font-family:'Oswald',sans-serif;font-weight:700;margin-bottom:6px">Risk
+                Aversion System</h4>
+              <p style="color:#666;font-size:0.85rem">자이로센서+GPS 실시간 모니터링. 이상 감지 시 HQ 즉시 알람. 증거 로그 자동 저장.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- B2B Radar -->
+      <div style="background:#111;border:1px solid #333;padding:40px">
+        <div
+          style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;flex-wrap:wrap;gap:8px">
+          <div>
+            <span
+              style="font-family:'Oswald',sans-serif;font-size:0.75rem;font-weight:600;letter-spacing:0.2em;color:#FEBD17;text-transform:uppercase">BUSINESS
+              TOOLS</span>
+            <h2 style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.8rem;color:#fff;margin-top:8px">B2B
+              Radar — 실무 기능</h2>
+            <p style="color:#666;font-size:0.9rem">위탁 관리 기업이 실제로 쓰게 되는 기능들</p>
+          </div>
+          <span
+            style="background:#FEBD17;color:#000;font-family:'Oswald',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.15em;padding:6px 14px">FOR
+            BUSINESS</span>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div style="display:flex;gap:16px;background:#1a1a1a;padding:20px;border:1px solid #2a2a2a">
+            <div
+              style="background:#222;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid #FEBD17">
+              <i class="ri-dashboard-3-line" style="color:#FEBD17;font-size:1.2rem"></i>
+            </div>
+            <div>
+              <h4 style="color:#fff;font-weight:700;margin-bottom:4px;font-family:'Oswald',sans-serif">실시간 LIVE 대시보드
+              </h4>
+              <p style="color:#555;font-size:0.85rem">요원 활동 현황 및 월별 점검 목표 달성 트렌드 실시간 시각화.</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:16px;background:#1a1a1a;padding:20px;border:1px solid #2a2a2a">
+            <div
+              style="background:#222;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid #FEBD17">
+              <i class="ri-add-circle-line" style="color:#FEBD17;font-size:1.2rem"></i>
+            </div>
+            <div>
+              <h4 style="color:#fff;font-weight:700;margin-bottom:4px;font-family:'Oswald',sans-serif">Spot Injection
+              </h4>
+              <p style="color:#555;font-size:0.85rem">긴급 상황 발생 시 지도 위 클릭 → 내일 정규 순찰 코스에 자동 삽입.</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:16px;background:#1a1a1a;padding:20px;border:1px solid #2a2a2a">
+            <div
+              style="background:#222;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid #FEBD17">
+              <i class="ri-file-word-2-line" style="color:#FEBD17;font-size:1.2rem"></i>
+            </div>
+            <div>
+              <h4 style="color:#fff;font-weight:700;margin-bottom:4px;font-family:'Oswald',sans-serif">HWP 0초 자동 생성
+              </h4>
+              <p style="color:#555;font-size:0.85rem">현장 사진 한 장으로 관공서 제출용 HWP/PDF 즉시 생성. 행정 업무 제로화.</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:16px;background:#1a1a1a;padding:20px;border:1px solid #2a2a2a">
+            <div
+              style="background:#222;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid #FEBD17">
+              <i class="ri-lock-2-line" style="color:#FEBD17;font-size:1.2rem"></i>
+            </div>
+            <div>
+              <h4 style="color:#fff;font-weight:700;margin-bottom:4px;font-family:'Oswald',sans-serif">법적 증거 메타데이터
+              </h4>
+              <p style="color:#555;font-size:0.85rem">Exif 데이터(촬영일시, GPS, 방위각) 추출 + 메타 워터마크 강제 렌더링.</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:16px;background:#1a1a1a;padding:20px;border:1px solid #2a2a2a">
+            <div
+              style="background:#222;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid #FEBD17">
+              <i class="ri-mail-send-line" style="color:#FEBD17;font-size:1.2rem"></i>
+            </div>
+            <div>
+              <h4 style="color:#fff;font-weight:700;margin-bottom:4px;font-family:'Oswald',sans-serif">이브닝 리포트 아카이브
+              </h4>
+              <p style="color:#555;font-size:0.85rem">매일 17:00, 승인 완료 문서를 Report Center에 자동 적재. 법적 면피권 체감.</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:16px;background:#1a1a1a;padding:20px;border:1px solid #2a2a2a">
+            <div
+              style="background:#222;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid #FEBD17">
+              <i class="ri-grid-line" style="color:#FEBD17;font-size:1.2rem"></i>
+            </div>
+            <div>
+              <h4 style="color:#fff;font-weight:700;margin-bottom:4px;font-family:'Oswald',sans-serif">조달청 타겟 매칭</h4>
+              <p style="color:#555;font-size:0.85rem">조달청·나라장터 API 연동. 지도 위 행정구역 클릭으로 관리 용역 기물 즉시 매칭.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ESG -->
+      <div style="background:#111;border:1px solid #333;padding:40px">
+        <span
+          style="font-family:'Oswald',sans-serif;font-size:0.75rem;font-weight:600;letter-spacing:0.2em;color:#FEBD17;text-transform:uppercase">IMPACT</span>
+        <h2 style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.8rem;color:#fff;margin:8px 0 8px">ESG
+          임팩트</h2>
+        <p style="color:#666;font-size:0.9rem;margin-bottom:28px">낭비되던 예산을 살리고 도심 안전망을 재건합니다</p>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-top:3px solid #FEBD17;padding:24px">
+            <div
+              style="font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;color:#FEBD17;margin-bottom:12px">
+              E</div>
+            <h4 style="color:#fff;font-family:'Oswald',sans-serif;font-weight:700;margin-bottom:8px">Environment &amp;
+              Social</h4>
+            <p style="color:#666;font-size:0.85rem">단순 미화가 아닌 핵심 예방 활동으로 전환. 도시 인프라 수명 연장 및 사회적 비용 절감.</p>
+          </div>
+          <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-top:3px solid #FEBD17;padding:24px">
+            <div
+              style="font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;color:#FEBD17;margin-bottom:12px">
+              S</div>
+            <h4 style="color:#fff;font-family:'Oswald',sans-serif;font-weight:700;margin-bottom:8px">Senior Job
+              Creation</h4>
+            <p style="color:#666;font-size:0.85rem">85만원 이상 버는 시니어 18%에 불과한 공공일자리 현실 타파. 경제적 자립과 전문가로서의 자부심 제공.</p>
+          </div>
+          <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-top:3px solid #FEBD17;padding:24px">
+            <div
+              style="font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;color:#FEBD17;margin-bottom:12px">
+              G</div>
+            <h4 style="color:#fff;font-family:'Oswald',sans-serif;font-weight:700;margin-bottom:8px">Governance</h4>
+            <p style="color:#666;font-size:0.85rem">지자체·관리업체·민간 인력의 투명한 협력 구조 완성. 디지털 증거 기반 책임 행정 실현.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 팀 성공 DNA -->
+      <div style="background:#111;border:1px solid #333;padding:40px">
+        <span
+          style="font-family:'Oswald',sans-serif;font-size:0.75rem;font-weight:600;letter-spacing:0.2em;color:#FEBD17;text-transform:uppercase">TEAM</span>
+        <h2 style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.8rem;color:#fff;margin:8px 0 8px">팀 성공
+          DNA</h2>
+        <p style="color:#666;font-size:0.9rem;margin-bottom:28px">숫자로 증명하는 실버가드의 운영 역량</p>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div
+            style="background:#1a1a1a;border:1px solid #2a2a2a;border-top:3px solid #FEBD17;padding:24px;text-align:center">
+            <div
+              style="font-family:'Oswald',sans-serif;font-size:2.5rem;font-weight:700;color:#FEBD17;margin-bottom:8px">
+              600+</div>
+            <div style="color:#fff;font-family:'Oswald',sans-serif;font-weight:600;font-size:0.9rem;margin-bottom:8px">
+              시니어 요원 직접 운영</div>
+            <p style="color:#555;font-size:0.8rem">시니어 라스트마일 물류·도심 안전 솔루션 운영으로 600명 이상 시니어 현장 운용 경험 확보.</p>
+          </div>
+          <div
+            style="background:#1a1a1a;border:1px solid #2a2a2a;border-top:3px solid #FEBD17;padding:24px;text-align:center">
+            <div
+              style="font-family:'Oswald',sans-serif;font-size:2.5rem;font-weight:700;color:#FEBD17;margin-bottom:8px">
+              98%</div>
+            <div style="color:#fff;font-family:'Oswald',sans-serif;font-weight:600;font-size:0.9rem;margin-bottom:8px">
+              현장 보고서 자동화율</div>
+            <p style="color:#555;font-size:0.8rem">AR 앱 + AI 검증으로 관공서 제출용 HWP 보고서의 98%를 사람 없이 자동 생성·제출.</p>
+          </div>
+          <div
+            style="background:#1a1a1a;border:1px solid #2a2a2a;border-top:3px solid #FEBD17;padding:24px;text-align:center">
+            <div
+              style="font-family:'Oswald',sans-serif;font-size:2.5rem;font-weight:700;color:#FEBD17;margin-bottom:8px">
+              4×</div>
+            <div style="color:#fff;font-family:'Oswald',sans-serif;font-weight:600;font-size:0.9rem;margin-bottom:8px">
+              커버리지
+              확대 효과</div>
+            <p style="color:#555;font-size:0.8rem">AI 최적 동선 배정으로 동일 인원 대비 순찰 커버리지 4배 확대, 단가 경쟁 우위 확보.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personas -->
+      <div class="grid md:grid-cols-2 gap-6">
+        <div style="background:#111;border:1px solid #333;border-top:4px solid #FEBD17;padding:32px;position:relative">
+          <span
+            style="position:absolute;top:0;right:0;background:#FEBD17;color:#000;font-family:'Oswald',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.1em;padding:4px 12px">CORE
+            USER</span>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+            <div
+              style="width:60px;height:60px;background:#222;border:2px solid #FEBD17;display:flex;align-items:center;justify-content:center;font-size:1.8rem">
+              👴🏻</div>
+            <div>
+              <h4 style="color:#fff;font-family:'Oswald',sans-serif;font-weight:700;font-size:1.1rem">'액티브 시니어' 김철수 님
+              </h4>
+              <p style="color:#666;font-size:0.85rem">68세 / 은퇴 공무원 / 스마트폰 활용 중급</p>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:0.88rem">
+            <p><strong style="color:#FEBD17">Needs:</strong> <span style="color:#999">단순 소일거리 말고, 사회에 기여한다는 보람을 느끼고
+                싶다.</span></p>
+            <p><strong style="color:#FEBD17">Pain Points:</strong> <span style="color:#999">기존 노인 일자리는 쓰레기 줍기뿐이라 자존심이
+                상한다.</span></p>
+            <p><strong style="color:#FEBD17">Solution:</strong> <span style="color:#999">AR 앱으로 전문 점검 + 내 동네 안전을 지킨다는
+                자부심.</span></p>
+          </div>
+        </div>
+        <div style="background:#111;border:1px solid #333;border-top:4px solid #FEBD17;padding:32px;position:relative">
+          <span
+            style="position:absolute;top:0;right:0;background:#FEBD17;color:#000;font-family:'Oswald',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.1em;padding:4px 12px">PRIMARY
+            CLIENT</span>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+            <div
+              style="width:60px;height:60px;background:#222;border:2px solid #FEBD17;display:flex;align-items:center;justify-content:center;font-size:1.8rem">
+              👷‍♀️</div>
+            <div>
+              <h4 style="color:#fff;font-family:'Oswald',sans-serif;font-weight:700;font-size:1.1rem">'시설관리 소장' 박성실 님
+              </h4>
+              <p style="color:#666;font-size:0.85rem">45세 / 시설물 유지보수 업체 대표</p>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:0.88rem">
+            <p><strong style="color:#FEBD17">Needs:</strong> <span style="color:#999">관할 구역은 넓은데 인력은 부족. 중대재해 처벌이
+                두렵다.</span></p>
+            <p><strong style="color:#FEBD17">Pain Points:</strong> <span style="color:#999">관공서 제출용 HWP 만드느라 매일
+                야근한다.</span></p>
+            <p><strong style="color:#FEBD17">Solution:</strong> <span style="color:#999">4배 감시 인력 + HWP 자동 생성 + 완벽한 법적
+                증거 자료.</span></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- END BUSINESS TAB -->
+
+
+
+
+  <div id="content-admin" class="tab-content bg-slate-950 text-white"
+    style="height:calc(100vh - 56px);position:relative">
+    <!-- 샘플 안내 배너 -->
+    <div
+      style="position:absolute;top:0;left:0;right:0;z-index:9999;background:linear-gradient(135deg,#1a1000,#2a1a00);border-bottom:3px solid #FEBD17;padding:10px 20px;display:flex;align-items:center;justify-content:center;gap:12px">
+      <i class="ri-information-line" style="color:#FEBD17;font-size:1.2rem"></i>
+      <span
+        style="font-family:'Oswald',sans-serif;font-weight:700;font-size:0.9rem;letter-spacing:0.12em;color:#FEBD17">SAMPLE
+        PAGE</span>
+      <span style="color:#aaa;font-size:0.85rem">— 이 페이지는 샘플입니다. 실제 데이터는 서비스 시작 후 연동됩니다.</span>
+    </div>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+      #leafletMap {
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+
+      .leaflet-container {
+        background: #1e293b;
+      }
+
+      .dispatch-card {
+        position: absolute;
+        z-index: 9999;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        border: 1px solid #14b8a6;
+        border-radius: 12px;
+        padding: 12px 16px;
+        min-width: 220px;
+        max-width: 260px;
+        box-shadow: 0 0 24px rgba(20, 184, 166, 0.4);
+        animation: dispatchPop 0.4s cubic-bezier(.17, .67, .35, 1.2) forwards;
+        pointer-events: none;
+      }
+
+      @keyframes dispatchPop {
+        0% {
+          transform: scale(0.5) translateY(20px);
+          opacity: 0
+        }
+
+        100% {
+          transform: scale(1) translateY(0);
+          opacity: 1
+        }
+      }
+
+      .dispatch-card.fade-out {
+        animation: dispatchFade 0.5s ease forwards;
+      }
+
+      @keyframes dispatchFade {
+        0% {
+          opacity: 1;
+          transform: translateY(0)
+        }
+
+        100% {
+          opacity: 0;
+          transform: translateY(-20px)
+        }
+      }
+
+      .agent-marker {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 0 12px rgba(20, 184, 166, 0.6);
+        transition: transform 0.2s;
+      }
+
+      .agent-marker:hover {
+        transform: scale(1.3);
+      }
+
+      .agent-active {
+        background: #14b8a6;
+        animation: pulse-agent 2s infinite;
+      }
+
+      .agent-idle {
+        background: #475569;
+      }
+
+      .agent-dispatched {
+        background: #f59e0b;
+        animation: pulse-agent 1s infinite;
+      }
+
+      @keyframes pulse-agent {
+
+        0%,
+        100% {
+          box-shadow: 0 0 8px rgba(20, 184, 166, 0.6)
+        }
+
+        50% {
+          box-shadow: 0 0 20px rgba(20, 184, 166, 1)
+        }
+      }
+
+      .dispatch-line {
+        position: absolute;
+        pointer-events: none;
+        z-index: 998;
+        stroke-dasharray: 8, 4;
+        stroke-dashoffset: 100;
+        animation: dashMove 1s linear infinite;
+      }
+
+      @keyframes dashMove {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+    </style>
+
+    <div class="dashboard-grid" style="position:relative;">
+      <!-- LEFT: 요원 현황 -->
+      <aside class="flex flex-col border-r border-slate-700 overflow-hidden bg-slate-900/90">
+        <div class="p-4 border-b border-slate-700 bg-slate-800/60">
+          <h2 class="font-bold text-white flex items-center gap-2 text-sm">
+            <i class="ri-team-line text-teal-400"></i>시니어 Pro-Agent
+          </h2>
+        </div>
+        <div class="grid grid-cols-3 divide-x divide-slate-700 border-b border-slate-700 text-center">
+          <div class="p-2">
+            <p class="text-xs text-slate-400">전체</p>
+            <p class="text-xl font-bold text-white" id="adminTotal">20</p>
+          </div>
+          <div class="p-2">
+            <p class="text-xs text-teal-400">활동중</p>
+            <p class="text-xl font-bold text-teal-400" id="adminActive">0</p>
+          </div>
+          <div class="p-2">
+            <p class="text-xs text-amber-400">배정됨</p>
+            <p class="text-xl font-bold text-amber-400" id="adminDispatched">0</p>
+          </div>
+        </div>
+        <div class="flex-1 overflow-y-auto no-scrollbar" id="seniorList"></div>
+      </aside>
+
+      <!-- MIDDLE: Leaflet 실제 지도 -->
+      <main class="flex flex-col overflow-hidden relative">
+        <div class="flex-1 relative overflow-hidden" id="mapWrapper">
+          <div id="leafletMap"></div>
+          <!-- 범례 -->
+          <div
+            class="absolute top-4 left-4 z-[800] bg-slate-900/90 backdrop-blur border border-slate-700 rounded-xl px-3 py-3 text-xs space-y-2 shadow-xl">
+            <p class="font-bold text-teal-400 text-xs tracking-widest">📍 성남시 분당구</p>
+            <div class="flex items-center gap-2"><span
+                class="w-3 h-3 rounded-full bg-teal-400 inline-block shadow-[0_0_6px_#14b8a6]"></span><span
+                class="text-slate-300">활동 요원</span></div>
+            <div class="flex items-center gap-2"><span
+                class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span><span class="text-slate-300">배정됨</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span><span
+                class="text-slate-300">A급 긴급</span>
+            </div>
+            <div class="flex items-center gap-2"><span
+                class="w-3 h-3 rounded-full bg-yellow-400 inline-block"></span><span class="text-slate-300">B급
+                주의</span></div>
+          </div>
+        </div>
+        <!-- 콘솔 -->
+        <div class="h-44 bg-black/90 border-t border-slate-700 p-3 overflow-y-auto font-mono text-xs no-scrollbar"
+          id="adminConsole">
+          <p class="text-slate-600">▶ 관제 시스템 대기 중 — '기관 데이터 수신' 버튼을 클릭하세요</p>
+        </div>
+      </main>
+
+      <!-- RIGHT: Sort-In AI 엔진 + 웹 디스패칭 -->
+      <aside class="flex flex-col border-l border-slate-700 overflow-hidden bg-slate-800/40">
+        <div class="p-4 border-b border-slate-700 bg-slate-800/60">
+          <h2 class="font-bold text-white flex items-center gap-2 text-sm">
+            <i class="ri-cpu-line text-teal-400"></i>Sort-In AI 엔진
+          </h2>
+        </div>
+        <div class="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4">
+          <!-- Step 1 -->
+          <div class="bg-slate-900/70 rounded-xl border border-slate-700 overflow-hidden">
+            <div class="p-3 border-b border-slate-700 flex justify-between items-center">
+              <span class="text-sm font-bold"><span class="text-blue-400">01.</span> 기관 데이터 수신</span>
+              <button onclick="adminStep('fetch')"
+                class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">실행</button>
+            </div>
+            <div class="p-3">
+              <div id="sortFetchLog" class="font-mono text-xs text-slate-400 space-y-1 min-h-[60px]">
+                <p class="text-slate-600">대기 중...</p>
+              </div>
+            </div>
+          </div>
+          <!-- Step 2 -->
+          <div class="bg-slate-900/70 rounded-xl border border-slate-700 overflow-hidden" id="sortStep2"
+            style="opacity:0.3">
+            <div class="p-3 border-b border-slate-700 flex justify-between items-center">
+              <span class="text-sm font-bold"><span class="text-teal-400">02.</span> AI 최적화</span>
+              <button onclick="openOptimizeUI()"
+                class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">최적화</button>
+            </div>
+            <div class="p-3">
+              <div id="sortOptLog" class="font-mono text-xs text-slate-400 space-y-1 min-h-[60px]">
+                <p class="text-slate-600">Step 1 완료 후 활성화</p>
+              </div>
+            </div>
+          </div>
+          <!-- Step 3: 웹 디스패칭 -->
+          <div class="bg-slate-900/70 rounded-xl border border-slate-700 overflow-hidden" id="sortStep3"
+            style="opacity:0.3">
+            <div class="p-3 border-b border-slate-700 flex justify-between items-center">
+              <span class="text-sm font-bold"><span class="text-green-400">03.</span> 미션 전달 <span
+                  class="text-xs text-green-300 font-normal">(Web Dispatch)</span></span>
+              <button onclick="adminStep('dispatch')"
+                class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">전달</button>
+            </div>
+            <div class="p-3 space-y-2" id="missionPacksArea">
+              <p class="text-xs text-slate-600 font-mono">Step 2 완료 후 활성화</p>
+            </div>
+          </div>
+
+          <!-- 웹 디스패칭 현황판 -->
+          <div id="dispatchBoard" class="hidden bg-slate-950 rounded-xl border border-green-700/40 p-4">
+            <p class="text-xs font-bold text-green-400 mb-3 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-green-400 animate-ping inline-block"></span>
+              WEB DISPATCH — 실시간 전송
+            </p>
+            <div id="dispatchStatus" class="space-y-2"></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <!-- END ADMIN TAB -->
+
+  <!-- ==================== TAB 4: DATA VIEWER ==================== -->
+  <div id="content-data" class="tab-content bg-slate-950 text-white"
+    style="height:calc(100vh - 56px);display:none;flex-direction:column">
+    <!-- 샘플 안내 배너 -->
+    <div
+      style="background:linear-gradient(135deg,#1a1000,#2a1a00);border-bottom:3px solid #FEBD17;padding:10px 20px;display:flex;align-items:center;justify-content:center;gap:12px;flex-shrink:0">
+      <i class="ri-information-line" style="color:#FEBD17;font-size:1.2rem"></i>
+      <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:0.9rem;letter-spacing:0.12em;color:#FEBD17">SAMPLE PAGE</span>
+      <span style="color:#aaa;font-size:0.85rem">— 이 페이지는 샘플입니다. 실제 데이터는 서비스 시작 후 연동됩니다.</span>
+    </div>
+    <!-- 상단 상태 바 -->
+    <div class="flex items-center justify-between border-b border-slate-700 bg-slate-800/60 flex-shrink-0" style="padding:10px 20px">
+      <div class="flex items-center gap-3">
+        <span class="relative flex w-2.5 h-2.5">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full w-2.5 h-2.5 bg-teal-400"></span>
+        </span>
+        <span class="font-bold text-white text-sm flex items-center gap-2" style="font-family:'Oswald',sans-serif;letter-spacing:0.08em">
+          <i class="ri-live-line text-teal-400"></i>LIVE FEED
+        </span>
+        <span class="text-slate-500 text-xs">실버가드 데이터 스트림</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="dataFeedCount" class="text-xs font-bold border border-teal-500 text-teal-400 px-3 py-1" style="font-family:'Oswald',sans-serif;background:#0d1f1f">0 건</span>
+        <button onclick="clearDataFeed()" class="text-xs px-3 py-1 bg-slate-800 border border-slate-600 text-slate-400 hover:text-white transition" style="font-family:'Oswald',sans-serif">CLEAR</button>
+      </div>
+    </div>
+
+    <!-- 3단 대시보드 그리드 -->
+    <div class="dashboard-grid" style="flex:1;overflow:hidden">
+
+      <!-- LEFT: 분류 현황 + 필터 -->
+      <aside class="flex flex-col border-r border-slate-700 overflow-hidden bg-slate-900/90">
+        <div class="p-4 border-b border-slate-700 bg-slate-800/60">
+          <h2 class="font-bold text-white flex items-center gap-2 text-sm">
+            <i class="ri-database-2-line text-teal-400"></i>데이터 분류 현황
+          </h2>
+        </div>
+        <div class="grid grid-cols-2 divide-x divide-slate-700 border-b border-slate-700 text-center">
+          <div class="p-2">
+            <p class="text-xs text-red-400">A급 긴급</p>
+            <p class="text-xl font-bold text-red-400" id="statA">0</p>
+          </div>
+          <div class="p-2">
+            <p class="text-xs text-amber-400">B급 처리</p>
+            <p class="text-xl font-bold text-amber-400" id="statB">0</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 divide-x divide-slate-700 border-b border-slate-700 text-center">
+          <div class="p-2">
+            <p class="text-xs text-teal-400">C급 완료</p>
+            <p class="text-xl font-bold text-teal-400" id="statC">0</p>
+          </div>
+          <div class="p-2">
+            <p class="text-xs text-blue-400">HWP 발행</p>
+            <p class="text-xl font-bold text-blue-400" id="statHWP">0</p>
+          </div>
+        </div>
+        <div class="p-3 border-b border-slate-700">
+          <p class="text-xs text-slate-500 mb-2 tracking-widest font-bold">FILTER</p>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="filterFeed('all')" id="filterAll" class="text-xs px-3 py-1 font-bold border" style="background:#14b8a6;color:#000;border-color:#14b8a6;font-family:'Oswald',sans-serif">ALL</button>
+            <button onclick="filterFeed('A')" id="filterA" class="text-xs px-3 py-1 font-bold border border-slate-600 bg-slate-800 text-red-400" style="font-family:'Oswald',sans-serif">A급</button>
+            <button onclick="filterFeed('B')" id="filterB" class="text-xs px-3 py-1 font-bold border border-slate-600 bg-slate-800 text-amber-400" style="font-family:'Oswald',sans-serif">B급</button>
+            <button onclick="filterFeed('C')" id="filterC" class="text-xs px-3 py-1 font-bold border border-slate-600 bg-slate-800 text-teal-400" style="font-family:'Oswald',sans-serif">C급</button>
+          </div>
+        </div>
+        <div class="flex-1 overflow-y-auto no-scrollbar p-3">
+          <p class="text-xs text-slate-500 mb-3 tracking-widest font-bold">분류별 비중</p>
+          <div id="dataBarChart" class="flex flex-col gap-3"></div>
+          <div class="mt-4 border-t border-slate-700 pt-3">
+            <p class="text-xs text-slate-500 mb-2 tracking-widest font-bold">최근 위치</p>
+            <div id="recentLocations" class="flex flex-col gap-1"></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MIDDLE: 실시간 인시던트 로그 -->
+      <main class="flex flex-col overflow-hidden relative">
+        <div class="px-4 py-2 border-b border-slate-700 bg-slate-800/40 flex items-center gap-2 flex-shrink-0">
+          <i class="ri-file-list-3-line text-teal-400 text-xs"></i>
+          <span class="text-xs text-slate-400 tracking-widest font-bold">INCIDENT LOG</span>
+        </div>
+        <div id="dataFeedList" class="flex-1 overflow-y-auto no-scrollbar p-3 flex flex-col gap-2"></div>
+        <div class="h-28 bg-black/90 border-t border-slate-700 p-3 overflow-y-auto font-mono text-xs no-scrollbar" id="dataConsole">
+          <p class="text-slate-600">▶ 데이터 스트림 대기 중 — 실시간 데이터가 자동 수신됩니다</p>
+        </div>
+      </main>
+
+      <!-- RIGHT: 집계 + KPI 패널 -->
+      <aside class="flex flex-col border-l border-slate-700 overflow-hidden bg-slate-800/40">
+        <div class="p-4 border-b border-slate-700 bg-slate-800/60">
+          <h2 class="font-bold text-white flex items-center gap-2 text-sm">
+            <i class="ri-bar-chart-box-line text-teal-400"></i>실시간 집계
+          </h2>
+        </div>
+        <div class="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4">
+          <div class="bg-slate-900/70 rounded-xl border border-slate-700 overflow-hidden">
+            <div class="p-3 border-b border-slate-700">
+              <span class="text-xs font-bold text-slate-400 tracking-widest">TOTAL RECEIVED</span>
+            </div>
+            <div class="p-3 text-center">
+              <div class="font-mono text-3xl font-bold text-teal-400" id="totalReceived">0</div>
+              <div class="text-xs text-slate-500 mt-1">금일 수신 건수</div>
+            </div>
+          </div>
+          <div class="bg-slate-900/70 rounded-xl border border-slate-700 overflow-hidden">
+            <div class="p-3 border-b border-slate-700">
+              <span class="text-xs font-bold text-slate-400 tracking-widest">AI PASS RATE</span>
+            </div>
+            <div class="p-3">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs text-slate-400">AI 데이터 통과율</span>
+                <span class="font-bold text-teal-400 text-sm">95.4%</span>
+              </div>
+              <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                <div class="bg-teal-400 h-2 rounded-full" style="width:95.4%;transition:width 1s ease"></div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-slate-900/70 rounded-xl border border-slate-700 overflow-hidden">
+            <div class="p-3 border-b border-slate-700">
+              <span class="text-xs font-bold text-slate-400 tracking-widest">AVG PROCESS TIME</span>
+            </div>
+            <div class="p-3 text-center">
+              <div class="font-mono text-2xl font-bold text-amber-400">2.3<span class="text-sm text-slate-400 ml-1">분</span></div>
+              <div class="text-xs text-slate-500 mt-1">평균 처리 시간</div>
+            </div>
+          </div>
+          <div class="bg-slate-900/70 rounded-xl border border-slate-700 overflow-hidden">
+            <div class="p-3 border-b border-slate-700">
+              <span class="text-xs font-bold text-slate-400 tracking-widest">AUTO HWP</span>
+            </div>
+            <div class="p-3 text-center">
+              <div class="font-mono text-2xl font-bold text-blue-400" id="hwpCount">0</div>
+              <div class="text-xs text-slate-500 mt-1">자동 발행된 보고서</div>
+            </div>
+          </div>
+          <div class="bg-slate-900/70 rounded-xl border border-slate-700 overflow-hidden">
+            <div class="p-3 border-b border-slate-700 flex justify-between items-center">
+              <span class="text-xs font-bold text-slate-400 tracking-widest">TODAY SUMMARY</span>
+              <span class="text-xs text-teal-400 font-mono" id="dataTimestamp">--:--</span>
+            </div>
+            <div class="p-3 space-y-2" id="todaySummary">
+              <p class="text-xs text-slate-600 font-mono">스트림 수신 대기 중...</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+  <!-- END DATA TAB -->
+
+  </div><!-- /padding-top -->
+
+  <script>
+    // ===== TAB SWITCHING =====
+    function switchTab(tab) {
+      ['home', 'ir', 'admin', 'data'].forEach(t => {
+        const c = document.getElementById('content-' + t);
+        const b = document.getElementById('tab-' + t);
+        if (c) { c.classList.remove('active'); c.style.display = 'none'; }
+        if (b) {
+          b.classList.remove('active-tab');
+          b.style.background = 'transparent';
+          b.style.color = '#9ca3af';
+        }
+      });
+      const el = document.getElementById('content-' + tab);
+      if (el) { el.classList.add('active'); el.style.display = 'block'; }
+      const btn = document.getElementById('tab-' + tab);
+      if (btn) {
+        btn.classList.add('active-tab');
+        btn.style.background = '#FEBD17';
+        btn.style.color = '#000';
+      }
+      if (tab === 'admin' && !adminInit) initAdmin();
+      if (tab === 'data') {
+        // data 탭은 flex로 표시
+        const dataEl = document.getElementById('content-data');
+        if (dataEl) dataEl.style.display = 'flex';
+        if (!liveFeedInit) initLiveFeed();
+      }
+    }
+
+    // ===== HOME: TICKER =====
+    const tickerItems = [
+      { icon: '⚠️', text: 'A급 포트홀 발견 · 야탑동 이면도로', time: '2분 전' },
+      { icon: '📸', text: 'B급 불법현수막 수거 완료 · 서현1동', time: '5분 전' },
+      { icon: '📁', text: 'C급 벤치 파손 HWP 자동 생성 · 분당구청 앞', time: '8분 전' },
+      { icon: '🤖', text: 'AI Predictive Routing 완료 · 오늘 14개 미션팩 배정', time: '11분 전' },
+      { icon: '🌧️', text: '강풍주의보 수신 → 현수막 Code C→A 자동 격상', time: '13분 전' },
+      { icon: '✅', text: '블랙아이스 구간 응급 신고 완료 · 판교IC', time: '18분 전' },
+      { icon: '📊', text: '어제 일일 리포트 자동 적재 완료 · 총 1,247건', time: '어제' },
+    ];
+    function initTicker() {
+      const t = document.getElementById('heroTicker');
+      if (!t) return;
+      const html = tickerItems.map(i => `<span style="display:inline-flex;align-items:center;gap:8px;padding:0 24px;font-size:0.85rem"><span>${i.icon}</span><span style="color:#FEBD17;font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:0.04em">${i.text}</span><span style="color:#555;font-size:0.75rem">${i.time}</span></span>`).join('');
+
+      t.innerHTML = html + html;
+    }
+
+    // ===== HOME: LIVE DATA GRID =====
+    const liveItems = [
+      { code: 'SG-ROAD-0042', target: '포트홀', defect: '지름 30cm↑ 파손 · 결빙 가능', urg: 'A', loc: '스쿨존 횡단보도 앞' },
+      { code: 'SG-ENV-0128', target: '무단 투기', defect: '분리수거 미이행 폐기물', urg: 'B', loc: '야탑동 골목' },
+      { code: 'SG-SAFETY-0009', target: '옹벽/축대', defect: '배부름 현상 균열 진행', urg: 'A', loc: '대로변 옹벽' },
+      { code: 'SG-FACILITY-0231', target: '공원 벤치', defect: '목재 등받이 못 돌출', urg: 'B', loc: '공원 내부' },
+      { code: 'SG-PARKING-0077', target: '소화전 주차', defect: '반경 5m 이내 불법 주정차', urg: 'A', loc: '지하철역 인근' },
+      { code: 'SG-ACCESS-0312', target: '점자블록', defect: '선형 블록 파손·유실', urg: 'B', loc: '초등학교 앞' },
+    ];
+    function initLiveDataGrid() {
+      const g = document.getElementById('liveDataGrid');
+      if (!g) return;
+      const urgColors = { A: 'border-red-500/60 bg-red-500/10', B: 'border-yellow-500/50 bg-yellow-500/10', C: 'border-teal-500/50 bg-teal-500/10' };
+      const badgeColors = { A: 'bg-red-600 text-white', B: 'bg-yellow-500 text-slate-900', C: 'bg-teal-600 text-white' };
+      g.innerHTML = liveItems.map(i => `
+    <div class="rounded-xl border ${urgColors[i.urg]} p-5 hover:scale-105 transition">
+      <div class="flex items-start justify-between mb-3">
+        <span class="font-mono text-xs text-slate-500">${i.code}</span>
+        <span class="badge ${badgeColors[i.urg]} text-xs">${i.urg}급</span>
+      </div>
+      <h4 class="font-bold text-lg mb-1">${i.target}</h4>
+      <p class="text-slate-400 text-sm mb-2">${i.defect}</p>
+      <div class="flex items-center gap-1 text-xs text-slate-500"><i class="ri-map-pin-line"></i>${i.loc}</div>
+    </div>
+  `).join('');
+    }
+
+    // ===== DATA: LIVE FEED =====
+    let liveFeedInit = false, liveFeedInterval = null;
+    let liveFeedStats = { A: 0, B: 0, C: 0, HWP: 0, total: 0 };
+    const FEED_TEMPLATES = [
+      { grade: 'A', icons: '⚠️', types: ['포트홀 발견', '옹벽 균열 감지', '소화전 주차 확인', '불법현수막 A급 격상', '블랙아이스 긴급 신고'], locs: ['야탑동 이면도로', '스쿨존 앞', '판교IC 인근', '서현1동 골목', '정자교 하부'] },
+      { grade: 'B', icons: '📸', types: ['불법현수막 수거', '공원 벤치 파손', '점자블록 유실', '킥보드 방치', '쓰레기 불법투기'], locs: ['서현2동', '중앙공원', '구미동 인도', '이매역 앞', '야탑역 광장'] },
+      { grade: 'C', icons: '✅', types: ['점검 완료 HWP 생성', 'GPS 인증 완료', '일일 리포트 적재', 'AI 동선 배정 완료', '순찰 코스 완주'], locs: ['분당구 전역', 'HQ 서버', '행정센터', '백현동', '운중동'] },
+    ];
+    const recentLocs = [];
+    function initLiveFeed() {
+      liveFeedInit = true;
+      // 초기 10건 생성 (silent=false → 통계 UI 즉시 반영)
+      for (let i = 0; i < 10; i++) pushFeedItem(false);
+      // 1.8초마다 자동 추가
+      liveFeedInterval = setInterval(() => pushFeedItem(false), 1800);
+    }
+    function pushFeedItem(silent) {
+      const gradeIdx = Math.random() < 0.25 ? 0 : Math.random() < 0.5 ? 1 : 2;
+      const tpl = FEED_TEMPLATES[gradeIdx];
+      const type = tpl.types[Math.floor(Math.random() * tpl.types.length)];
+      const loc = tpl.locs[Math.floor(Math.random() * tpl.locs.length)];
+      const grade = tpl.grade;
+      const code = 'SG-' + String(Math.floor(Math.random() * 9000) + 1000);
+      const now = new Date();
+      const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+      const feedList = document.getElementById('dataFeedList');
+      if (!feedList) return;
+      const gradeColor = { A: '#ef4444', B: '#FEBD17', C: '#4ade80' };
+      const item = document.createElement('div');
+      item.style.cssText = 'background:#111;border:1px solid #1a1a1a;border-left:3px solid ' + gradeColor[grade] + ';padding:10px 14px;display:flex;align-items:center;gap:12px;font-size:0.83rem;animation:feedIn 0.3s ease';
+      item.innerHTML = `<span style='font-family:"Oswald",sans-serif;font-weight:700;color:${gradeColor[grade]};min-width:20px'>${grade}</span><span style='font-family:monospace;color:#444;min-width:80px'>${code}</span><span style='color:#aaa;flex:1'>${type}</span><span style='color:#555;min-width:72px'><i class='ri-map-pin-line'></i> ${loc}</span><span style='color:#333;min-width:56px;text-align:right'>${timeStr}</span>`;
+      feedList.insertBefore(item, feedList.firstChild);
+      // 최대 60건
+      const items = feedList.querySelectorAll('div');
+      if (items.length > 60) items[items.length - 1].remove();
+      // 통계 업데이트
+      liveFeedStats[grade]++;
+      liveFeedStats.HWP += (grade === 'C' && Math.random() < 0.6) ? 1 : 0;
+      liveFeedStats.total++;
+      if (!silent) {
+        document.getElementById('statA').textContent = liveFeedStats.A;
+        document.getElementById('statB').textContent = liveFeedStats.B;
+        document.getElementById('statC').textContent = liveFeedStats.C;
+        document.getElementById('statHWP').textContent = liveFeedStats.HWP;
+        document.getElementById('dataFeedCount').textContent = liveFeedStats.total + ' 건';
+        updateDataBar();
+        if (recentLocs.length === 0 || recentLocs[0] !== loc) {
+          recentLocs.unshift(loc);
+          if (recentLocs.length > 5) recentLocs.pop();
+          const rl = document.getElementById('recentLocations');
+          if (rl) rl.innerHTML = recentLocs.map(l => `<div style='color:#555;font-size:0.78rem;border-left:2px solid #FEBD17;padding-left:8px'>${l}</div>`).join('');
+        }
+      }
+    }
+    function updateDataBar() {
+      const total = liveFeedStats.A + liveFeedStats.B + liveFeedStats.C || 1;
+      const bars = [
+        { label: 'A급', val: liveFeedStats.A, color: '#ef4444' },
+        { label: 'B급', val: liveFeedStats.B, color: '#FEBD17' },
+        { label: 'C급', val: liveFeedStats.C, color: '#4ade80' },
+      ];
+      const bc = document.getElementById('dataBarChart');
+      if (!bc) return;
+      bc.innerHTML = bars.map(b => `<div style='display:flex;align-items:center;gap:8px;font-size:0.75rem'><span style='color:${b.color};min-width:24px'>${b.label}</span><div style='flex:1;background:#1a1a1a;height:6px'><div style='background:${b.color};height:100%;width:${Math.round(b.val / total * 100)}%;transition:width 0.5s'></div></div><span style='color:#444;min-width:32px;text-align:right'>${Math.round(b.val / total * 100)}%</span></div>`).join('');
+    }
+    function clearDataFeed() {
+      const feedList = document.getElementById('dataFeedList');
+      if (feedList) feedList.innerHTML = '';
+      liveFeedStats = { A: 0, B: 0, C: 0, HWP: 0, total: 0 };
+      document.getElementById('statA').textContent = '0';
+      document.getElementById('statB').textContent = '0';
+      document.getElementById('statC').textContent = '0';
+      document.getElementById('statHWP').textContent = '0';
+      document.getElementById('dataFeedCount').textContent = '0 건';
+      document.getElementById('dataBarChart').innerHTML = '';
+      document.getElementById('recentLocations').innerHTML = '';
+      recentLocs.length = 0;
+    }
+
+    // ===== ADMIN =====
+    let adminInit = false, leafletMap = null, agentMarkers = [];
+    const SENIORS = [
+      { id: 'SG-01', name: '김철수', area: '야탑1동', status: 'idle', hp: 90, lat: 37.406, lng: 127.131 },
+      { id: 'SG-02', name: '이영희', area: '서현2동', status: 'idle', hp: 85, lat: 37.384, lng: 127.120 },
+      { id: 'SG-03', name: '박정훈', area: '분당동', status: 'idle', hp: 78, lat: 37.376, lng: 127.108 },
+      { id: 'SG-04', name: '최순례', area: '정자1동', status: 'idle', hp: 92, lat: 37.361, lng: 127.113 },
+      { id: 'SG-05', name: '정태호', area: '수내동', status: 'idle', hp: 88, lat: 37.370, lng: 127.127 },
+      { id: 'SG-06', name: '강미숙', area: '구미1동', status: 'idle', hp: 95, lat: 37.356, lng: 127.099 },
+      { id: 'SG-07', name: '윤기수', area: '금곡동', status: 'idle', hp: 82, lat: 37.388, lng: 127.097 },
+      { id: 'SG-08', name: '한봉식', area: '야탑3동', status: 'idle', hp: 91, lat: 37.412, lng: 127.138 },
+      { id: 'SG-09', name: '오선자', area: '이매동', status: 'idle', hp: 87, lat: 37.396, lng: 127.155 },
+      { id: 'SG-10', name: '노태준', area: '판교동', status: 'idle', hp: 79, lat: 37.394, lng: 127.107 },
+      { id: 'SG-11', name: '서명화', area: '운중동', status: 'idle', hp: 93, lat: 37.377, lng: 127.079 },
+      { id: 'SG-12', name: '임재호', area: '백현동', status: 'idle', hp: 84, lat: 37.374, lng: 127.113 },
+      { id: 'SG-13', name: '권미라', area: '삼평동', status: 'idle', hp: 96, lat: 37.380, lng: 127.109 },
+      { id: 'SG-14', name: '신영철', area: '동원동', status: 'idle', hp: 80, lat: 37.366, lng: 127.089 },
+      { id: 'SG-15', name: '허갑수', area: '불정동', status: 'idle', hp: 89, lat: 37.360, lng: 127.084 },
+      { id: 'SG-16', name: '배인순', area: '궁내동', status: 'idle', hp: 83, lat: 37.353, lng: 127.094 },
+      { id: 'SG-17', name: '방성우', area: '사송동', status: 'idle', hp: 94, lat: 37.409, lng: 127.149 },
+      { id: 'SG-18', name: '조은주', area: '탑동', status: 'idle', hp: 76, lat: 37.400, lng: 127.119 },
+      { id: 'SG-19', name: '유광철', area: '서현1동', status: 'idle', hp: 88, lat: 37.382, lng: 127.116 },
+      { id: 'SG-20', name: '문정란', area: '수내1동', status: 'idle', hp: 91, lat: 37.372, lng: 127.130 }
+    ];
+    const RAW_ORDERS = [
+      { type: 'A', loc: '야탑대로 148', task: '포트홀 긴급 보수', lat: 37.406, lng: 127.133 },
+      { type: 'B', loc: '서현로 12길', task: '불법현수막 수거', lat: 37.385, lng: 127.122 },
+      { type: 'A', loc: '분당구 스쿨존', task: '소화전 불법주차 신고', lat: 37.376, lng: 127.112 },
+      { type: 'C', loc: '중앙공원', task: '벤치 파손 보고', lat: 37.362, lng: 127.115 },
+      { type: 'B', loc: '정자천 옹벽', task: '균열 현황 사진 수집', lat: 37.368, lng: 127.126 },
+      { type: 'A', loc: '수내역 인근', task: '전선 노출 안전 신고', lat: 37.369, lng: 127.128 },
+      { type: 'C', loc: '구미동', task: '점자블록 파손 확인', lat: 37.356, lng: 127.100 },
+      { type: 'A', loc: '야탑3동', task: '도로함몰 긴급 점검', lat: 37.413, lng: 127.136 },
+      { type: 'B', loc: '이매동', task: '배수로 막힘 확인', lat: 37.397, lng: 127.154 },
+      { type: 'A', loc: '판교역', task: 'CCTV 화각 이탈 보고', lat: 37.395, lng: 127.109 },
+    ];
+    let adminFetched = false, adminOptimized = false;
+    function initAdmin() {
+      adminInit = true;
+      renderSeniorList();
+      initLeafletMap();
+      adminLog('Sort-In AI 시스템 시작. 분당구 데이터 대기 중.', 'slate');
+    }
+    function initLeafletMap() {
+      if (leafletMap) return;
+      if (!window.L) { setTimeout(initLeafletMap, 300); return; }
+      const mapEl = document.getElementById('leafletMap');
+      if (!mapEl) return;
+      leafletMap = L.map('leafletMap', { zoomControl: true, attributionControl: false })
+        .setView([37.383, 127.119], 14);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19
+      }).addTo(leafletMap);
+      // 위험 지점 마커
+      const urgColors = { A: '#ef4444', B: '#f59e0b', C: '#22c55e' };
+      RAW_ORDERS.forEach(o => {
+        const icon = L.divIcon({ className: '', html: `<div style="width:14px;height:14px;border-radius:50%;background:${urgColors[o.type]};border:2px solid white;box-shadow:0 0 8px ${urgColors[o.type]}"></div>`, iconSize: [14, 14], iconAnchor: [7, 7] });
+        L.marker([o.lat, o.lng], { icon }).addTo(leafletMap)
+          .bindPopup(`<b>[${o.type}급]</b> ${o.loc}<br>${o.task}`);
+      });
+      // 요원 마커
+      agentMarkers = SENIORS.map(s => {
+        const el = document.createElement('div');
+        el.className = 'agent-marker agent-idle';
+        el.textContent = s.name[0];
+        el.title = s.name;
+        const icon = L.divIcon({ className: '', html: el.outerHTML, iconSize: [32, 32], iconAnchor: [16, 16] });
+        const marker = L.marker([s.lat, s.lng], { icon }).addTo(leafletMap)
+          .bindPopup(`<b>${s.name}</b> (${s.id})<br>${s.area}<br>상태: ${s.status}`);
+        return { senior: s, marker };
+      });
+    }
+    function updateAgentMarker(idx, newStatus) {
+      if (!leafletMap || !agentMarkers[idx]) return;
+      const s = SENIORS[idx];
+      s.status = newStatus;
+      const cls = newStatus === 'active' ? 'agent-active' : newStatus === 'dispatched' ? 'agent-dispatched' : 'agent-idle';
+      const el = document.createElement('div');
+      el.className = `agent-marker ${cls}`;
+      el.textContent = s.name[0];
+      el.title = s.name;
+      const icon = L.divIcon({ className: '', html: el.outerHTML, iconSize: [32, 32], iconAnchor: [16, 16] });
+      agentMarkers[idx].marker.setIcon(icon);
+      agentMarkers[idx].marker.setPopupContent(`<b>${s.name}</b> (${s.id})<br>${s.area}<br>상태: ${newStatus}`);
+    }
+    function renderSeniorList() {
+      const el = document.getElementById('seniorList');
+      const act = SENIORS.filter(s => s.status === 'active' || s.status === 'dispatched').length;
+      const disp = SENIORS.filter(s => s.status === 'dispatched').length;
+      document.getElementById('adminActive').textContent = act;
+      document.getElementById('adminDispatched').textContent = disp;
+      el.innerHTML = SENIORS.map(s => `
+    <div class="flex items-center gap-2 px-3 py-2 border-b border-slate-800 hover:bg-slate-800/40 transition">
+      <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${s.status === 'dispatched' ? 'bg-amber-500/20 text-amber-400 ring-2 ring-amber-500' :
+          s.status === 'active' ? 'bg-teal-500/20 text-teal-400 ring-2 ring-teal-500' :
+            'bg-slate-700 text-slate-400'}">${s.name[0]}</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-bold text-white">${s.name} <span class="text-slate-600">${s.id}</span></p>
+        <p class="text-xs text-slate-400 truncate">${s.area}</p>
+      </div>
+      <div class="text-right shrink-0">
+        <div class="text-xs ${s.hp >= 85 ? 'text-teal-400' : 'text-yellow-400'} font-mono">${s.hp}%</div>
+        <div class="text-xs ${s.status === 'dispatched' ? 'text-amber-400' : s.status === 'active' ? 'text-teal-400' : 'text-slate-500'}">${s.status === 'dispatched' ? '배정됨' : s.status === 'active' ? '활동' : '대기'
+        }</div>
+      </div>
+    </div>
+  `).join('');
+    }
+    // ===== AI 최적화 웹 UI =====
+    function openOptimizeUI() {
+      if (!adminFetched) { adminLog('먼저 Step 1(기관 데이터 수신)을 실행하세요.', 'red'); return; }
+      // 이미 열려있으면 닫기
+      const existing = document.getElementById('optimizeOverlay');
+      if (existing) { existing.remove(); return; }
+
+      const routes = [
+        { agent: 'SG-01 김철수', area: '야탑1동', missions: 7, urgA: 2, urgB: 3, urgC: 2, dist: '4.2km', time: '오전 09:00~14:30', efficiency: 94 },
+        { agent: 'SG-03 박정훈', area: '분당동', missions: 5, urgA: 1, urgB: 2, urgC: 2, dist: '3.8km', time: '오전 09:15~13:45', efficiency: 88 },
+        { agent: 'SG-05 정태호', area: '수내동', missions: 8, urgA: 3, urgB: 3, urgC: 2, dist: '5.1km', time: '오전 09:00~15:00', efficiency: 97 },
+        { agent: 'SG-07 윤기수', area: '금곡동', missions: 6, urgA: 1, urgB: 3, urgC: 2, dist: '4.6km', time: '오전 09:30~14:00', efficiency: 91 },
+        { agent: 'SG-09 오선자', area: '이매동', missions: 4, urgA: 0, urgB: 2, urgC: 2, dist: '2.9km', time: '오전 10:00~13:00', efficiency: 85 },
+        { agent: 'SG-11 서명화', area: '운중동', missions: 9, urgA: 4, urgB: 3, urgC: 2, dist: '6.3km', time: '오전 08:45~16:00', efficiency: 98 },
+      ];
+
+      const overlay = document.createElement('div');
+      overlay.id = 'optimizeOverlay';
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease';
+      overlay.onclick = function (e) { if (e.target === overlay) confirmOptimize && overlay.remove(); };
+
+      overlay.innerHTML = `
+        <div style="background:#111;border:1px solid rgba(254,189,23,0.4);border-top:3px solid #FEBD17;border-radius:12px;width:100%;max-width:900px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.8),0 0 60px rgba(254,189,23,0.08)">
+        <div style="background:#0F0F0F;border-bottom:2px solid rgba(254,189,23,0.3);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+          <div style="display:flex;align-items:center;gap:16px">
+            <span style="background:#FEBD17;color:#000;font-family:'Oswald',sans-serif;font-weight:700;font-size:0.75rem;letter-spacing:0.15em;padding:4px 10px">AI OPTIMIZE</span>
+            <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.2rem;color:#fff">경로 최적화 결과</span>
+            <span style="color:#444;font-size:0.8rem">총 ${routes.length}명 · ${routes.reduce((s, r) => s + r.missions, 0)}개 미션팩 배정 완료</span>
+          </div>
+          <button onclick="document.getElementById('optimizeOverlay').remove()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#aaa;padding:6px 16px;font-family:'Oswald',sans-serif;font-size:0.8rem;cursor:pointer;border-radius:6px;transition:all 0.2s" onmouseover="this.style.borderColor='#FEBD17';this.style.color='#FEBD17'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='#aaa'">✕ 닫기</button>
+        </div>
+
+        <div style="flex:1;overflow-y:auto;padding:24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;align-content:start">
+          ${routes.map(r => `
+            <div style="background:#111;border:1px solid #1a1a1a;border-top:3px solid #FEBD17;padding:20px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                <div>
+                  <div style="font-family:'Oswald',sans-serif;font-weight:700;color:#fff;font-size:1rem">${r.agent}</div>
+                  <div style="color:#555;font-size:0.8rem;margin-top:2px"><i class="ri-map-pin-line"></i> ${r.area}</div>
+                </div>
+                <div style="text-align:center;background:#1a1a1a;border:2px solid ${r.efficiency >= 95 ? '#FEBD17' : '#333'};width:52px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                  <div style="font-family:'Oswald',sans-serif;font-size:1.1rem;font-weight:700;color:${r.efficiency >= 95 ? '#FEBD17' : '#aaa'}">${r.efficiency}</div>
+                  <div style="font-size:0.6rem;color:#444">EFF%</div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+                <div style="background:#1a1a1a;border-left:2px solid #ef4444;padding:8px;text-align:center">
+                  <div style="color:#ef4444;font-family:'Oswald',sans-serif;font-weight:700;font-size:1.2rem">${r.urgA}</div>
+                  <div style="color:#444;font-size:0.65rem">A급</div>
+                </div>
+                <div style="background:#1a1a1a;border-left:2px solid #FEBD17;padding:8px;text-align:center">
+                  <div style="color:#FEBD17;font-family:'Oswald',sans-serif;font-weight:700;font-size:1.2rem">${r.urgB}</div>
+                  <div style="color:#444;font-size:0.65rem">B급</div>
+                </div>
+                <div style="background:#1a1a1a;border-left:2px solid #4ade80;padding:8px;text-align:center">
+                  <div style="color:#4ade80;font-family:'Oswald',sans-serif;font-weight:700;font-size:1.2rem">${r.urgC}</div>
+                  <div style="color:#444;font-size:0.65rem">C급</div>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#555;border-top:1px solid #1a1a1a;padding-top:10px">
+                <span><i class="ri-walk-line"></i> ${r.dist}</span>
+                <span><i class="ri-time-line"></i> ${r.time}</span>
+                <span><i class="ri-file-list-line" style="color:#FEBD17"></i> ${r.missions}개</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div style="background:#0F0F0F;border-top:1px solid #1a1a1a;padding:12px 24px;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;gap:24px;font-size:0.82rem;color:#555">
+            <span>총 미션: <strong style="color:#FEBD17">${routes.reduce((s, r) => s + r.missions, 0)}건</strong></span>
+            <span>A급: <strong style="color:#ef4444">${routes.reduce((s, r) => s + r.urgA, 0)}건</strong></span>
+            <span>평균 효율: <strong style="color:#FEBD17">${Math.round(routes.reduce((s, r) => s + r.efficiency, 0) / routes.length)}%</strong></span>
+          </div>
+          <button onclick="confirmOptimize()" style="background:#FEBD17;border:none;color:#000;font-family:'Oswald',sans-serif;font-weight:700;font-size:0.85rem;letter-spacing:0.1em;padding:10px 28px;cursor:pointer;border-radius:6px;transition:all 0.2s" onmouseover="this.style.background='#E5A800'" onmouseout="this.style.background='#FEBD17'">배정 확정 →</button>
+        </div>
+        </div>
+      `;
+
+      document.body.appendChild(overlay);
+    }
+
+    function confirmOptimize() {
+      // Step 2 최적화 로직 실행
+      adminStep('optimize');
+      // overlay 닫기
+      const overlay = document.getElementById('optimizeOverlay');
+      if (overlay) overlay.remove();
+    }
+
+    let missionPacks = [];
+    function adminStep(action) {
+      if (action === 'fetch') {
+        const el = document.getElementById('sortFetchLog');
+        el.innerHTML = '';
+        let i = 0;
+        const interval = setInterval(() => {
+          if (i >= RAW_ORDERS.length) {
+            clearInterval(interval);
+            adminFetched = true;
+            document.getElementById('sortStep2').style.opacity = '1';
+            adminLog(`데이터 수신 완료: ${RAW_ORDERS.length}건`, 'blue');
+          } else {
+            const o = RAW_ORDERS[i];
+            el.innerHTML += `<p class="text-teal-400">✓ [${o.type}] ${o.loc} - ${o.task}</p>`;
+            i++;
+          }
+        }, 200);
+      } else if (action === 'optimize') {
+        if (!adminFetched) { adminLog('먼저 Step 1을 실행하세요.', 'red'); return; }
+        adminLog('AI Predictive Routing 알고리즘 실행 중...', 'yellow');
+        const el = document.getElementById('sortOptLog');
+        el.innerHTML = '<p class="text-yellow-400 animate-pulse">⚙️ TSP 최적화 처리 중...</p>';
+        setTimeout(() => {
+          missionPacks = RAW_ORDERS.map((o, i) => ({
+            senior: SENIORS[i % SENIORS.length].name,
+            seniorIdx: i % SENIORS.length,
+            area: SENIORS[i % SENIORS.length].area,
+            task: o.task,
+            type: o.type,
+            loc: o.loc
+          }));
+          el.innerHTML = missionPacks.map(m => `<p class="text-teal-400">→ ${m.senior}: ${m.task}</p>`).join('');
+          adminOptimized = true;
+          document.getElementById('sortStep3').style.opacity = '1';
+          adminLog(`최적화 완료. ${missionPacks.length}개 미션팩 생성`, 'teal');
+        }, 1500);
+      } else if (action === 'dispatch') {
+        if (!adminOptimized) { adminLog('먼저 Step 2를 실행하세요.', 'red'); return; }
+        const area = document.getElementById('missionPacksArea');
+        const board = document.getElementById('dispatchBoard');
+        const status = document.getElementById('dispatchStatus');
+        board.classList.remove('hidden');
+        area.innerHTML = '';
+        status.innerHTML = '';
+        missionPacks.forEach((m, i) => {
+          setTimeout(() => {
+            // 지도 마커 상태 변경
+            updateAgentMarker(m.seniorIdx, 'dispatched');
+            // 미션팩 카드
+            area.innerHTML += `<div class="pack-anim bg-amber-900/30 border border-amber-700/50 rounded-lg p-2 text-xs">
+              <div class="flex justify-between items-center"><span class="font-bold text-amber-400">${m.senior}</span><span class="badge badge-${m.type}">${m.type}</span></div>
+              <p class="text-slate-300 text-xs mt-1 truncate">${m.task}</p>
+              <p class="text-slate-500 text-xs">${m.area} · ${m.loc}</p>
+            </div>`;
+            // 디스패칭 현황판
+            status.innerHTML += `<div class="flex items-center gap-2 text-xs">
+              <span class="text-green-400">✓</span>
+              <span class="text-slate-300">${m.senior}</span>
+              <span class="text-slate-500 truncate flex-1">${m.task}</span>
+              <span class="badge badge-${m.type} shrink-0">${m.type}</span>
+            </div>`;
+            renderSeniorList();
+            adminLog(`[WEB DISPATCH] ${m.senior} → ${m.task}`, 'green');
+          }, i * 400);
+        });
+        // 마지막 스텝 후 활성화 상태로 전환
+        setTimeout(() => {
+          missionPacks.forEach(m => {
+            const s = SENIORS[m.seniorIdx];
+            if (s.status === 'dispatched') { updateAgentMarker(m.seniorIdx, 'active'); }
+          });
+          renderSeniorList();
+          adminLog('전체 미션 전달 완료 — 요원 활동 개시!', 'teal');
+        }, missionPacks.length * 400 + 600);
+      }
+    }
+    function adminLog(msg, color) {
+      const con = document.getElementById('adminConsole');
+      const colors = { green: 'text-green-400', blue: 'text-blue-400', teal: 'text-teal-400', red: 'text-red-400', yellow: 'text-yellow-400', slate: 'text-slate-400' };
+      const now = new Date().toLocaleTimeString('ko-KR');
+      con.innerHTML += `<p class="${colors[color] || 'text-slate-400'}">[${now}] ${msg}</p>`;
+      con.scrollTop = con.scrollHeight;
+    }
+
+    // ===== DATA VIEWER =====
+    let dataInit = false, dataFull = [], dataFiltered = [], dataCurPage = 1;
+    const DATA_PER_PAGE = 50;
+    const SCENARIOS = [
+      ['ROAD', '포트홀', '지름 30cm 이상 도로 파임', 'A', '도로관리과', '도로법 제59조'],
+      ['ROAD', '도로 균열', '거북등 균열 진행', 'C', '도로관리과', '도로법 제59조'],
+      ['ROAD', '블랙아이스', '교량 결빙 구간', 'A', '도로관리과', '도로법 제59조'],
+      ['PARKING', '소화전 주차', '소화전 반경 5m 주정차', 'A', '주차관리과', '도로교통법 제32조'],
+      ['PARKING', '스쿨존 주차', '어린이보호구역 주정차', 'A', '주차관리과', '도로교통법 제32조'],
+      ['ENV', '무단 투기', '종량제 미사용 쓰레기', 'B', '청소행정과', '폐기물관리법 제8조'],
+      ['FACILITY', '공원 벤치', '목재 파손 및 못 돌출', 'B', '시설관리공단', '공공디자인 진흥법'],
+      ['SAFETY', '옹벽/축대', '배부름 현상 균열', 'A', '안전총괄과', '재난안전법'],
+      ['ACCESS', '점자블록', '선형 블록 파손', 'B', '노인장애인과', '교통약자이동편의증진법'],
+    ];
+    const LOCS = ['초등학교 앞', '시장 입구', '주택가 골목', '대로변', '공원 내부', '지하철역 인근'];
+    function initData() {
+      dataInit = true;
+      for (let i = 1; i <= 1000; i++) {
+        const s = SCENARIOS[i % SCENARIOS.length];
+        dataFull.push({ id: `SG-${s[0]}-${String(i).padStart(4, '0')}`, cat: s[0], catName: s[0] === 'ROAD' ? '도로/교통' : s[0] === 'ENV' || s[0] === 'SAFETY' ? '환경/안전' : '시설', target: s[1], defect: s[2], urg: s[3], dept: s[4], law: s[5], loc: LOCS[i % LOCS.length] });
+      }
+      dataFiltered = [...dataFull];
+      document.getElementById('dataSearch').addEventListener('input', dataFilter);
+      document.querySelectorAll('.urg-filter').forEach(cb => cb.addEventListener('change', dataFilter));
+      dataRender(); dataStats();
+    }
+    function dataFilter() {
+      const q = document.getElementById('dataSearch').value.toLowerCase();
+      const urgs = [...document.querySelectorAll('.urg-filter:checked')].map(c => c.value);
+      dataFiltered = dataFull.filter(d => (d.target.includes(q) || d.defect.includes(q) || d.id.includes(q)) && urgs.includes(d.urg));
+      dataCurPage = 1; dataRender(); dataStats();
+    }
+    function dataRender() {
+      const start = (dataCurPage - 1) * DATA_PER_PAGE;
+      const slice = dataFiltered.slice(start, start + DATA_PER_PAGE);
+      document.getElementById('dataTableBody').innerHTML = slice.map(d => `
+    <tr class="border-b hover:bg-gray-50 bg-white odd:bg-white even:bg-gray-50/50 cursor-pointer">
+      <td class="px-4 py-3 font-mono text-xs text-gray-600">${d.id}</td>
+      <td class="px-4 py-3"><span class="bg-teal-100 text-teal-700 text-xs font-semibold px-2 py-0.5 rounded">${d.catName}</span></td>
+      <td class="px-4 py-3 font-bold text-gray-800 text-xs">${d.target}</td>
+      <td class="px-4 py-3 text-xs text-gray-600 max-w-xs truncate">${d.defect}</td>
+      <td class="px-4 py-3 text-xs text-gray-500">${d.dept}</td>
+      <td class="px-4 py-3 text-center"><span class="badge badge-${d.urg}">${d.urg}</span></td>
+    </tr>`).join('');
+      document.getElementById('dataShowStart').textContent = dataFiltered.length ? start + 1 : 0;
+      document.getElementById('dataShowEnd').textContent = Math.min(start + DATA_PER_PAGE, dataFiltered.length);
+      document.getElementById('dataShowTotal').textContent = dataFiltered.length;
+    }
+    function dataStats() {
+      document.getElementById('dataTotal').textContent = dataFiltered.length;
+      document.getElementById('dataRoad').textContent = dataFiltered.filter(d => d.cat === 'ROAD' || d.cat === 'PARKING').length;
+      document.getElementById('dataEnv').textContent = dataFiltered.filter(d => d.cat === 'ENV' || d.cat === 'SAFETY').length;
+      document.getElementById('dataUrg').textContent = dataFiltered.filter(d => d.urg === 'A').length;
+    }
+    function dataChangePage(delta) {
+      const max = Math.ceil(dataFiltered.length / DATA_PER_PAGE);
+      const next = dataCurPage + delta;
+      if (next >= 1 && next <= max) { dataCurPage = next; dataRender(); }
+    }
+
+    // ===== INIT =====
+    window.onload = function () {
+      initTicker();
+      initLiveDataGrid();
+    };
+  </script>
+</body>
+
+</html>

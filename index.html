@@ -489,10 +489,11 @@
 
       <!-- SOLUTION: VISUAL STORY — 풀너비 히어로 비주얼 -->
       <section style="position:relative;overflow:hidden;min-height:720px;display:flex;align-items:center">
-        <!-- 배경 이미지 — 얼굴+다리 모두 보이게 크게 -->
-        <img src="safety-asset-hero.png"
-          style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 40%"
-          alt="공공데이터 + 시니어 인력 = Safety Asset">
+        <!-- 배경 영상 — AR 기술 활용 도시 시설 점검 -->
+        <video autoplay loop muted playsinline
+          style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center">
+          <source src="AR_기술_활용_도시_시설_점검 (1).mp4" type="video/mp4">
+        </video>
         <!-- 다크 그라디언트 오버레이 — 왼쪽 텍스트 가독성 -->
         <div
           style="position:absolute;inset:0;background:linear-gradient(to right,rgba(5,5,10,0.92) 0%,rgba(5,5,10,0.75) 45%,rgba(5,5,10,0.2) 75%,transparent 100%)">
@@ -1642,24 +1643,31 @@
     <div
       style="background:linear-gradient(135deg,#1a1000,#2a1a00);border-bottom:3px solid #FEBD17;padding:10px 20px;display:flex;align-items:center;justify-content:center;gap:12px;flex-shrink:0">
       <i class="ri-information-line" style="color:#FEBD17;font-size:1.2rem"></i>
-      <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:0.9rem;letter-spacing:0.12em;color:#FEBD17">SAMPLE PAGE</span>
+      <span
+        style="font-family:'Oswald',sans-serif;font-weight:700;font-size:0.9rem;letter-spacing:0.12em;color:#FEBD17">SAMPLE
+        PAGE</span>
       <span style="color:#aaa;font-size:0.85rem">— 이 페이지는 샘플입니다. 실제 데이터는 서비스 시작 후 연동됩니다.</span>
     </div>
     <!-- 상단 상태 바 -->
-    <div class="flex items-center justify-between border-b border-slate-700 bg-slate-800/60 flex-shrink-0" style="padding:10px 20px">
+    <div class="flex items-center justify-between border-b border-slate-700 bg-slate-800/60 flex-shrink-0"
+      style="padding:10px 20px">
       <div class="flex items-center gap-3">
         <span class="relative flex w-2.5 h-2.5">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full w-2.5 h-2.5 bg-teal-400"></span>
         </span>
-        <span class="font-bold text-white text-sm flex items-center gap-2" style="font-family:'Oswald',sans-serif;letter-spacing:0.08em">
+        <span class="font-bold text-white text-sm flex items-center gap-2"
+          style="font-family:'Oswald',sans-serif;letter-spacing:0.08em">
           <i class="ri-live-line text-teal-400"></i>LIVE FEED
         </span>
         <span class="text-slate-500 text-xs">실버가드 데이터 스트림</span>
       </div>
       <div class="flex items-center gap-2">
-        <span id="dataFeedCount" class="text-xs font-bold border border-teal-500 text-teal-400 px-3 py-1" style="font-family:'Oswald',sans-serif;background:#0d1f1f">0 건</span>
-        <button onclick="clearDataFeed()" class="text-xs px-3 py-1 bg-slate-800 border border-slate-600 text-slate-400 hover:text-white transition" style="font-family:'Oswald',sans-serif">CLEAR</button>
+        <span id="dataFeedCount" class="text-xs font-bold border border-teal-500 text-teal-400 px-3 py-1"
+          style="font-family:'Oswald',sans-serif;background:#0d1f1f">0 건</span>
+        <button onclick="clearDataFeed()"
+          class="text-xs px-3 py-1 bg-slate-800 border border-slate-600 text-slate-400 hover:text-white transition"
+          style="font-family:'Oswald',sans-serif">CLEAR</button>
       </div>
     </div>
 
@@ -1696,10 +1704,17 @@
         <div class="p-3 border-b border-slate-700">
           <p class="text-xs text-slate-500 mb-2 tracking-widest font-bold">FILTER</p>
           <div class="flex flex-wrap gap-2">
-            <button onclick="filterFeed('all')" id="filterAll" class="text-xs px-3 py-1 font-bold border" style="background:#14b8a6;color:#000;border-color:#14b8a6;font-family:'Oswald',sans-serif">ALL</button>
-            <button onclick="filterFeed('A')" id="filterA" class="text-xs px-3 py-1 font-bold border border-slate-600 bg-slate-800 text-red-400" style="font-family:'Oswald',sans-serif">A급</button>
-            <button onclick="filterFeed('B')" id="filterB" class="text-xs px-3 py-1 font-bold border border-slate-600 bg-slate-800 text-amber-400" style="font-family:'Oswald',sans-serif">B급</button>
-            <button onclick="filterFeed('C')" id="filterC" class="text-xs px-3 py-1 font-bold border border-slate-600 bg-slate-800 text-teal-400" style="font-family:'Oswald',sans-serif">C급</button>
+            <button onclick="filterFeed('all')" id="filterAll" class="text-xs px-3 py-1 font-bold border"
+              style="background:#14b8a6;color:#000;border-color:#14b8a6;font-family:'Oswald',sans-serif">ALL</button>
+            <button onclick="filterFeed('A')" id="filterA"
+              class="text-xs px-3 py-1 font-bold border border-slate-600 bg-slate-800 text-red-400"
+              style="font-family:'Oswald',sans-serif">A급</button>
+            <button onclick="filterFeed('B')" id="filterB"
+              class="text-xs px-3 py-1 font-bold border border-slate-600 bg-slate-800 text-amber-400"
+              style="font-family:'Oswald',sans-serif">B급</button>
+            <button onclick="filterFeed('C')" id="filterC"
+              class="text-xs px-3 py-1 font-bold border border-slate-600 bg-slate-800 text-teal-400"
+              style="font-family:'Oswald',sans-serif">C급</button>
           </div>
         </div>
         <div class="flex-1 overflow-y-auto no-scrollbar p-3">
@@ -1719,7 +1734,8 @@
           <span class="text-xs text-slate-400 tracking-widest font-bold">INCIDENT LOG</span>
         </div>
         <div id="dataFeedList" class="flex-1 overflow-y-auto no-scrollbar p-3 flex flex-col gap-2"></div>
-        <div class="h-28 bg-black/90 border-t border-slate-700 p-3 overflow-y-auto font-mono text-xs no-scrollbar" id="dataConsole">
+        <div class="h-28 bg-black/90 border-t border-slate-700 p-3 overflow-y-auto font-mono text-xs no-scrollbar"
+          id="dataConsole">
           <p class="text-slate-600">▶ 데이터 스트림 대기 중 — 실시간 데이터가 자동 수신됩니다</p>
         </div>
       </main>
@@ -1760,7 +1776,8 @@
               <span class="text-xs font-bold text-slate-400 tracking-widest">AVG PROCESS TIME</span>
             </div>
             <div class="p-3 text-center">
-              <div class="font-mono text-2xl font-bold text-amber-400">2.3<span class="text-sm text-slate-400 ml-1">분</span></div>
+              <div class="font-mono text-2xl font-bold text-amber-400">2.3<span
+                  class="text-sm text-slate-400 ml-1">분</span></div>
               <div class="text-xs text-slate-500 mt-1">평균 처리 시간</div>
             </div>
           </div>

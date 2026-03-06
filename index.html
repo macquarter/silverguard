@@ -831,15 +831,12 @@
 
           <!-- 씬 탭 -->
           <div style="display:flex;gap:0;margin-bottom:40px;border-bottom:2px solid #1a1a1a" id="arTabs">
-            <button onclick="switchArScene('fire')" id="arTab-fire" class="ar-tab ar-tab-active"
-              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 24px;border:none;cursor:pointer;border-bottom:3px solid #FEBD17;background:rgba(254,189,23,0.06);color:#FEBD17;transition:all 0.2s">🧯
-              소방시설</button>
-            <button onclick="switchArScene('road')" id="arTab-road" class="ar-tab"
-              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 24px;border:none;cursor:pointer;border-bottom:3px solid transparent;background:transparent;color:#555;transition:all 0.2s">🛣️
-              도로·교통</button>
-            <button onclick="switchArScene('park')" id="arTab-park" class="ar-tab"
-              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 24px;border:none;cursor:pointer;border-bottom:3px solid transparent;background:transparent;color:#555;transition:all 0.2s">🏞️
-              공원·보행로</button>
+            <button id="arTab-fire" class="ar-tab ar-tab-active" onclick="window.switchArScene('fire')"
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 24px;border:none;cursor:pointer;border-bottom:3px solid #FEBD17;background:rgba(254,189,23,0.06);color:#FEBD17;transition:all 0.2s">소방시설</button>
+            <button id="arTab-road" class="ar-tab" onclick="window.switchArScene('road')"
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 24px;border:none;cursor:pointer;border-bottom:3px solid transparent;background:transparent;color:#555;transition:all 0.2s">도로·교통</button>
+            <button id="arTab-park" class="ar-tab" onclick="window.switchArScene('park')"
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 24px;border:none;cursor:pointer;border-bottom:3px solid transparent;background:transparent;color:#555;transition:all 0.2s">공원·보행로</button>
           </div>
 
           <!-- 메인 레이아웃: 폰 + 우측 패널 -->
@@ -850,10 +847,13 @@
               <!-- 폰 외형 -->
               <div id="arPhone"
                 style="width:240px;height:480px;background:#000;border-radius:28px;border:3px solid #333;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(254,189,23,0.12),0 0 120px rgba(0,0,0,0.8)">
-                <!-- 카메라 배경 -->
+                <!-- 카메라 배경 그라디언트 -->
                 <div id="arCamBg"
                   style="position:absolute;inset:0;background:linear-gradient(135deg,#0a1628 0%,#0d2137 60%,#091420 100%);transition:background 0.6s">
                 </div>
+                <!-- 단계별 AR 이미지 오버레이 -->
+                <img id="arStepImg" src="ar-step0.png" alt="AR step"
+                  style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.82;transition:opacity 0.4s,src 0.3s">
                 <!-- 그리드 오버레이 -->
                 <div
                   style="position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,255,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.06) 1px,transparent 1px);background-size:30px 30px;pointer-events:none">
@@ -963,13 +963,13 @@
               </div>
               <!-- 스텝 컨트롤 버튼 -->
               <div style="display:flex;gap:8px">
-                <button onclick="setArStep(0)" id="arBtn0"
+                <button onclick="window.setArStep(0)" id="arBtn0"
                   style="font-family:'Oswald',sans-serif;font-size:0.72rem;padding:6px 14px;border:1px solid #FF5252;background:rgba(255,82,82,0.15);color:#FF5252;cursor:pointer;transition:all 0.2s">🔴
                   미정렬</button>
-                <button onclick="setArStep(1)" id="arBtn1"
+                <button onclick="window.setArStep(1)" id="arBtn1"
                   style="font-family:'Oswald',sans-serif;font-size:0.72rem;padding:6px 14px;border:1px solid #333;background:transparent;color:#555;cursor:pointer;transition:all 0.2s">🟡
                   정렬중</button>
-                <button onclick="setArStep(2)" id="arBtn2"
+                <button onclick="window.setArStep(2)" id="arBtn2"
                   style="font-family:'Oswald',sans-serif;font-size:0.72rem;padding:6px 14px;border:1px solid #333;background:transparent;color:#555;cursor:pointer;transition:all 0.2s">🟢
                   완료</button>
               </div>
@@ -996,12 +996,28 @@
                 <div id="arCheckList" style="display:flex;flex-direction:column;gap:10px"></div>
               </div>
 
-              <!-- 인식 엔진 -->
+              <!-- 인식 엔진 + 기술 뱃지 통합 블록 -->
               <div style="background:#0c0c0c;border:1px solid #1a1a1a;border-left:3px solid #00E5FF;padding:20px">
                 <div style="font-size:0.72rem;color:#00E5FF;margin-bottom:6px">🤖 인식 엔진: <span id="arEngine"
                     style="font-weight:700">—</span></div>
                 <div id="arModelDetail" style="font-size:0.78rem;color:#555;line-height:1.5;margin-bottom:6px"></div>
-                <div id="arTraining" style="font-size:0.72rem;color:#444"></div>
+                <div id="arTraining" style="font-size:0.72rem;color:#444;margin-bottom:16px"></div>
+                <!-- 기술 뱃지 -->
+                <div style="display:flex;flex-wrap:wrap;gap:6px;padding-top:14px;border-top:1px solid #1a1a1a">
+                  <span style="padding:4px 10px;border:1px solid #00E5FF;font-size:0.65rem;color:#00E5FF">CameraX
+                    프리뷰</span>
+                  <span style="padding:4px 10px;border:1px solid #00E5FF;font-size:0.65rem;color:#00E5FF">ML Kit
+                    EfficientDet</span>
+                  <span style="padding:4px 10px;border:1px solid #00E5FF;font-size:0.65rem;color:#00E5FF">OpenCV
+                    ORB/RANSAC</span>
+                  <span style="padding:4px 10px;border:1px solid #22c55e;font-size:0.65rem;color:#22c55e">GPS
+                    자동기록</span>
+                  <span style="padding:4px 10px;border:1px solid #FEBD17;font-size:0.65rem;color:#FEBD17">CLOVA TTS
+                    음성</span>
+                  <span style="padding:4px 10px;border:1px solid #FEBD17;font-size:0.65rem;color:#FEBD17">햅틱
+                    200Hz+</span>
+                  <span style="padding:4px 10px;border:1px solid #FF5252;font-size:0.65rem;color:#FF5252">셔터 자동잠금</span>
+                </div>
               </div>
 
               <!-- 정렬 알고리즘 5가지 신호 -->
@@ -1093,20 +1109,6 @@
                 </div>
               </div>
 
-              <!-- 기술 뱃지 -->
-              <div style="display:flex;flex-wrap:wrap;gap:6px">
-                <span style="padding:4px 10px;border:1px solid #00E5FF;font-size:0.65rem;color:#00E5FF">CameraX
-                  프리뷰</span>
-                <span style="padding:4px 10px;border:1px solid #00E5FF;font-size:0.65rem;color:#00E5FF">ML Kit
-                  EfficientDet</span>
-                <span style="padding:4px 10px;border:1px solid #00E5FF;font-size:0.65rem;color:#00E5FF">OpenCV
-                  ORB/RANSAC</span>
-                <span style="padding:4px 10px;border:1px solid #22c55e;font-size:0.65rem;color:#22c55e">GPS 자동기록</span>
-                <span style="padding:4px 10px;border:1px solid #FEBD17;font-size:0.65rem;color:#FEBD17">CLOVA TTS
-                  음성</span>
-                <span style="padding:4px 10px;border:1px solid #FEBD17;font-size:0.65rem;color:#FEBD17">햅틱 200Hz+</span>
-                <span style="padding:4px 10px;border:1px solid #FF5252;font-size:0.65rem;color:#FF5252">셔터 자동잠금</span>
-              </div>
             </div>
           </div>
         </div>
@@ -1192,10 +1194,19 @@
             let currentStep = 0;
             let autoTimer = null;
 
-            function setArStep(step) {
+            window.setArStep = function (step) {
               currentStep = step;
               const scene = SCENES[currentScene];
               const cfg = STEPS[step];
+              // 단계별 이미지 전환 (페이드)
+              const img = document.getElementById('arStepImg');
+              if (img) {
+                img.style.opacity = '0';
+                setTimeout(function () {
+                  img.src = 'ar-step' + step + '.png';
+                  img.style.opacity = '0.82';
+                }, 250);
+              }
               // 색상 업데이트
               ['arBorder', 'arCornerTL', 'arCornerTR', 'arCornerBL', 'arCornerBR'].forEach(id => {
                 const el = document.getElementById(id);
@@ -1233,7 +1244,7 @@
               }
             }
 
-            function switchArScene(key) {
+            window.switchArScene = function (key) {
               currentScene = key;
               currentStep = 0;
               const scene = SCENES[key];

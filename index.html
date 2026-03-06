@@ -730,25 +730,634 @@
         </div>
       </section>
 
-      <!-- LIVE DATA PREVIEW -->
-      <section style="background:#0F0F0F;padding:80px 0">
+      <!-- LIVE DATA: 롤링 카운터 -->
+      <section style="background:#111;padding:48px 0 0;border-top:1px solid rgba(254,189,23,0.15)">
         <div class="container mx-auto px-6">
-          <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px">
+          <div
+            style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:32px;flex-wrap:wrap;gap:16px">
             <div>
               <div
                 style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.75rem;letter-spacing:0.2em;color:#FEBD17;text-transform:uppercase;margin-bottom:8px">
-                DATA INTELLIGENCE</div>
-              <h2 style="font-family:'Oswald',sans-serif;font-weight:700;font-size:2rem;color:#fff">실시간 수집 데이터 현황</h2>
+                DATA INTELLIGENCE · LIVE</div>
+              <h2 style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.8rem;color:#fff">실시간 수집 데이터 현황</h2>
             </div>
-            <div style="text-align:right">
-              <p style="color:#666;font-size:0.85rem">Today Records</p>
-              <p style="font-family:'Oswald',sans-serif;font-size:2.5rem;font-weight:700;color:#FEBD17">2,542 <span
-                  style="font-size:1rem;color:#555;font-weight:400">건</span></p>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span
+                style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#FEBD17;animation:ping 1.2s cubic-bezier(0,0,0.2,1) infinite"></span>
+              <span style="font-family:'Oswald',sans-serif;font-size:0.8rem;color:#FEBD17;letter-spacing:0.1em">LIVE
+                수신중</span>
             </div>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="liveDataGrid"></div>
+          <!-- 롤링 카운터 5개 -->
+          <div
+            style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid rgba(254,189,23,0.15);overflow:hidden"
+            id="liveCounters">
+            <div class="live-counter-cell"
+              style="padding:24px 16px;border-right:1px solid rgba(254,189,23,0.1);text-align:center">
+              <div
+                style="font-size:0.65rem;color:#555;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px">
+                도로·맨홀</div>
+              <div class="roll-num" id="cnt0"
+                style="font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;color:#FEBD17;line-height:1">0
+              </div>
+              <div style="font-size:0.7rem;color:#444;margin-top:4px">건</div>
+            </div>
+            <div class="live-counter-cell"
+              style="padding:24px 16px;border-right:1px solid rgba(254,189,23,0.1);text-align:center">
+              <div
+                style="font-size:0.65rem;color:#555;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px">
+                소방시설</div>
+              <div class="roll-num" id="cnt1"
+                style="font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;color:#FEBD17;line-height:1">0
+              </div>
+              <div style="font-size:0.7rem;color:#444;margin-top:4px">건</div>
+            </div>
+            <div class="live-counter-cell"
+              style="padding:24px 16px;border-right:1px solid rgba(254,189,23,0.1);text-align:center">
+              <div
+                style="font-size:0.65rem;color:#555;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px">
+                공원·보행로</div>
+              <div class="roll-num" id="cnt2"
+                style="font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;color:#FEBD17;line-height:1">0
+              </div>
+              <div style="font-size:0.7rem;color:#444;margin-top:4px">건</div>
+            </div>
+            <div class="live-counter-cell"
+              style="padding:24px 16px;border-right:1px solid rgba(254,189,23,0.1);text-align:center">
+              <div
+                style="font-size:0.65rem;color:#555;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px">오늘
+                총 점검</div>
+              <div class="roll-num" id="cnt3"
+                style="font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;color:#fff;line-height:1">0</div>
+              <div style="font-size:0.7rem;color:#444;margin-top:4px">건</div>
+            </div>
+            <div class="live-counter-cell" style="padding:24px 16px;text-align:center">
+              <div
+                style="font-size:0.65rem;color:#555;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px">
+                HWP 자동생성</div>
+              <div class="roll-num" id="cnt4"
+                style="font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;color:#22c55e;line-height:1">0
+              </div>
+              <div style="font-size:0.7rem;color:#444;margin-top:4px">건</div>
+            </div>
+          </div>
+          <!-- 실시간 로그 롤링 -->
+          <div
+            style="background:#0a0a0a;border:1px solid #1a1a1a;border-top:none;padding:12px 20px;display:flex;align-items:center;gap:16px;overflow:hidden">
+            <span
+              style="font-family:'Oswald',sans-serif;font-size:0.7rem;color:#FEBD17;letter-spacing:0.1em;white-space:nowrap">●
+              LOG</span>
+            <div id="liveLog"
+              style="font-family:monospace;font-size:0.75rem;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+              수신 대기 중...</div>
+          </div>
         </div>
       </section>
+
+      <!-- AR 카메라 시뮬레이터 섹션 -->
+      <section style="background:#0D0D14;padding:80px 0;border-top:1px solid rgba(254,189,23,0.1)">
+        <div class="container mx-auto px-6">
+          <!-- 섹션 헤더 -->
+          <div style="margin-bottom:48px">
+            <div
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.75rem;letter-spacing:0.2em;color:#FEBD17;text-transform:uppercase;margin-bottom:8px">
+              PRO-AGENT APP · DEMO</div>
+            <h2
+              style="font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(1.8rem,4vw,2.8rem);color:#fff;line-height:1.1;margin-bottom:12px">
+              AR 스마트 카메라 가이드<br><span style="color:#FEBD17">현장 점검 시뮬레이터</span></h2>
+            <p style="color:#666;font-size:0.95rem;max-width:540px;line-height:1.7">포켓몬 GO처럼 직관적인 AR 가이드로 누구나 전문가처럼
+              수집합니다.<br>3-Shot Verification — 정렬 점수 80% 이상 시 자동 셔터.</p>
+          </div>
+
+          <!-- 씬 탭 -->
+          <div style="display:flex;gap:0;margin-bottom:40px;border-bottom:2px solid #1a1a1a" id="arTabs">
+            <button onclick="switchArScene('fire')" id="arTab-fire" class="ar-tab ar-tab-active"
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 24px;border:none;cursor:pointer;border-bottom:3px solid #FEBD17;background:rgba(254,189,23,0.06);color:#FEBD17;transition:all 0.2s">🧯
+              소방시설</button>
+            <button onclick="switchArScene('road')" id="arTab-road" class="ar-tab"
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 24px;border:none;cursor:pointer;border-bottom:3px solid transparent;background:transparent;color:#555;transition:all 0.2s">🛣️
+              도로·교통</button>
+            <button onclick="switchArScene('park')" id="arTab-park" class="ar-tab"
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 24px;border:none;cursor:pointer;border-bottom:3px solid transparent;background:transparent;color:#555;transition:all 0.2s">🏞️
+              공원·보행로</button>
+          </div>
+
+          <!-- 메인 레이아웃: 폰 + 우측 패널 -->
+          <div style="display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:start" id="arMain">
+
+            <!-- ① 폰 시뮬레이터 -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+              <!-- 폰 외형 -->
+              <div id="arPhone"
+                style="width:240px;height:480px;background:#000;border-radius:28px;border:3px solid #333;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(254,189,23,0.12),0 0 120px rgba(0,0,0,0.8)">
+                <!-- 카메라 배경 -->
+                <div id="arCamBg"
+                  style="position:absolute;inset:0;background:linear-gradient(135deg,#0a1628 0%,#0d2137 60%,#091420 100%);transition:background 0.6s">
+                </div>
+                <!-- 그리드 오버레이 -->
+                <div
+                  style="position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,255,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.06) 1px,transparent 1px);background-size:30px 30px;pointer-events:none">
+                </div>
+                <!-- 스캔라인 -->
+                <div
+                  style="position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(0,229,255,0.6),transparent);animation:scanline 3s linear infinite;pointer-events:none"
+                  id="arScanLine"></div>
+                <!-- HUD 상단 -->
+                <div
+                  style="position:absolute;top:0;left:0;right:0;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(to bottom,rgba(0,0,0,0.8),transparent)">
+                  <div style="font-family:'Oswald',sans-serif;font-size:0.7rem;color:#00E5FF;letter-spacing:0.1em">⬡
+                    SILVERGUARD</div>
+                  <div style="text-align:right;font-size:0.55rem;color:#00E5FF;line-height:1.4">
+                    <span
+                      style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#00FF88;margin-right:3px;vertical-align:middle;animation:ping 1.2s infinite"></span>GPS
+                    LOCKED<br>
+                    <span id="arTime" style="color:#aaa">--:--:--</span>
+                  </div>
+                </div>
+                <!-- 가이드 박스 -->
+                <div id="arGuideBox"
+                  style="position:absolute;top:110px;left:40px;width:160px;height:220px;transition:all 0.4s ease">
+                  <div id="arStepBadge"
+                    style="position:absolute;top:-22px;left:0;right:0;text-align:center;font-size:0.55rem;color:#FF5252;letter-spacing:0.05em;font-family:'Oswald',sans-serif">
+                    STEP 1/3 — 위치 조정 필요</div>
+                  <div id="arBorder"
+                    style="position:absolute;inset:0;border:2px solid #FF5252;transition:border-color 0.4s"></div>
+                  <!-- 코너 마커 -->
+                  <div id="arCornerTL"
+                    style="position:absolute;top:-2px;left:-2px;width:12px;height:12px;border-top:3px solid #FF5252;border-left:3px solid #FF5252;transition:border-color 0.4s">
+                  </div>
+                  <div id="arCornerTR"
+                    style="position:absolute;top:-2px;right:-2px;width:12px;height:12px;border-top:3px solid #FF5252;border-right:3px solid #FF5252;transition:border-color 0.4s">
+                  </div>
+                  <div id="arCornerBL"
+                    style="position:absolute;bottom:-2px;left:-2px;width:12px;height:12px;border-bottom:3px solid #FF5252;border-left:3px solid #FF5252;transition:border-color 0.4s">
+                  </div>
+                  <div id="arCornerBR"
+                    style="position:absolute;bottom:-2px;right:-2px;width:12px;height:12px;border-bottom:3px solid #FF5252;border-right:3px solid #FF5252;transition:border-color 0.4s">
+                  </div>
+                  <!-- 십자선 -->
+                  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:20px;height:20px">
+                    <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(255,255,255,0.3)">
+                    </div>
+                    <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,0.3)">
+                    </div>
+                  </div>
+                </div>
+                <!-- 객체 태그 -->
+                <div id="arObjTag"
+                  style="position:absolute;top:96px;left:50%;transform:translateX(-50%);padding:3px 10px;font-size:0.6rem;font-weight:700;border-radius:2px;background:#FF5252;color:#fff;transition:background 0.4s;white-space:nowrap">
+                  🔴 로딩 중...</div>
+                <!-- 정렬 점수 미터 (우측) -->
+                <div
+                  style="position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:4px">
+                  <div style="font-size:0.5rem;color:#aaa">정렬</div>
+                  <div
+                    style="width:8px;height:80px;background:#111;border-radius:4px;overflow:hidden;display:flex;flex-direction:column-reverse">
+                    <div id="arScoreBar"
+                      style="width:100%;background:#FF5252;transition:height 0.5s ease,background 0.5s;border-radius:4px;height:30%">
+                    </div>
+                  </div>
+                  <div id="arScoreVal"
+                    style="font-family:'Oswald',sans-serif;font-size:0.65rem;font-weight:700;color:#FF5252;transition:color 0.4s">
+                    30%</div>
+                </div>
+                <!-- 체크리스트 (좌측 하단) -->
+                <div style="position:absolute;left:10px;bottom:90px;display:flex;flex-direction:column;gap:4px">
+                  <div style="display:flex;align-items:center;gap:4px">
+                    <div id="arDot0"
+                      style="width:6px;height:6px;border-radius:50%;background:#00FF88;transition:background 0.3s">
+                    </div><span style="font-size:0.55rem;color:#aaa">위치</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:4px">
+                    <div id="arDot1"
+                      style="width:6px;height:6px;border-radius:50%;background:#333;transition:background 0.3s"></div>
+                    <span style="font-size:0.55rem;color:#aaa">각도</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:4px">
+                    <div id="arDot2"
+                      style="width:6px;height:6px;border-radius:50%;background:#333;transition:background 0.3s"></div>
+                    <span style="font-size:0.55rem;color:#aaa">거리</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:4px">
+                    <div id="arDot3"
+                      style="width:6px;height:6px;border-radius:50%;background:#333;transition:background 0.3s"></div>
+                    <span style="font-size:0.55rem;color:#aaa">흔들림</span>
+                  </div>
+                </div>
+                <!-- HUD 하단 -->
+                <div
+                  style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,0.95),transparent);padding:14px">
+                  <div
+                    style="background:rgba(0,0,0,0.6);border:1px solid rgba(0,229,255,0.2);padding:6px 10px;margin-bottom:10px;border-radius:2px;display:flex;align-items:center;gap:6px">
+                    <span style="font-size:0.8rem">🔊</span>
+                    <span id="arVoice" style="font-size:0.6rem;color:#aaa;line-height:1.3">로딩 중...</span>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between">
+                    <div id="arAlignText" style="font-size:0.55rem;color:#FF5252;transition:color 0.4s">정렬 30% — 셔터 잠금
+                    </div>
+                    <div id="arShutter"
+                      style="width:40px;height:40px;border-radius:50%;border:3px solid #FF5252;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:border-color 0.4s;background:rgba(0,0,0,0.5)">
+                      🔒</div>
+                  </div>
+                </div>
+              </div>
+              <!-- 스텝 컨트롤 버튼 -->
+              <div style="display:flex;gap:8px">
+                <button onclick="setArStep(0)" id="arBtn0"
+                  style="font-family:'Oswald',sans-serif;font-size:0.72rem;padding:6px 14px;border:1px solid #FF5252;background:rgba(255,82,82,0.15);color:#FF5252;cursor:pointer;transition:all 0.2s">🔴
+                  미정렬</button>
+                <button onclick="setArStep(1)" id="arBtn1"
+                  style="font-family:'Oswald',sans-serif;font-size:0.72rem;padding:6px 14px;border:1px solid #333;background:transparent;color:#555;cursor:pointer;transition:all 0.2s">🟡
+                  정렬중</button>
+                <button onclick="setArStep(2)" id="arBtn2"
+                  style="font-family:'Oswald',sans-serif;font-size:0.72rem;padding:6px 14px;border:1px solid #333;background:transparent;color:#555;cursor:pointer;transition:all 0.2s">🟢
+                  완료</button>
+              </div>
+            </div>
+
+            <!-- ② 우측 패널 -->
+            <div style="display:flex;flex-direction:column;gap:20px">
+              <!-- 씬 정보 카드 -->
+              <div
+                style="background:#13131A;border:1px solid rgba(254,189,23,0.12);border-top:3px solid #FEBD17;padding:28px">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+                  <div id="arSceneIcon"
+                    style="width:44px;height:44px;background:#1a1a1a;border:2px solid #FEBD17;display:flex;align-items:center;justify-content:center;font-size:1.4rem">
+                    🧯</div>
+                  <div>
+                    <div id="arSceneName"
+                      style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.1rem;color:#fff">소방시설 점검</div>
+                    <div id="arSceneSub" style="font-size:0.78rem;color:#666">공동주택 소화기·감지기·유도등</div>
+                  </div>
+                </div>
+                <div
+                  style="font-family:'Oswald',sans-serif;font-size:0.72rem;color:#FEBD17;letter-spacing:0.1em;margin-bottom:14px">
+                  점검 항목별 AR 가이드 방식</div>
+                <div id="arCheckList" style="display:flex;flex-direction:column;gap:10px"></div>
+              </div>
+
+              <!-- 인식 엔진 -->
+              <div style="background:#0c0c0c;border:1px solid #1a1a1a;border-left:3px solid #00E5FF;padding:20px">
+                <div style="font-size:0.72rem;color:#00E5FF;margin-bottom:6px">🤖 인식 엔진: <span id="arEngine"
+                    style="font-weight:700">—</span></div>
+                <div id="arModelDetail" style="font-size:0.78rem;color:#555;line-height:1.5;margin-bottom:6px"></div>
+                <div id="arTraining" style="font-size:0.72rem;color:#444"></div>
+              </div>
+
+              <!-- 정렬 알고리즘 5가지 신호 -->
+              <div style="background:#13131A;border:1px solid rgba(254,189,23,0.08);padding:24px">
+                <div
+                  style="font-family:'Oswald',sans-serif;font-size:0.72rem;color:#FEBD17;letter-spacing:0.1em;margin-bottom:6px">
+                  🎯 정렬 점수 알고리즘 (5가지 가중 신호)</div>
+                <div style="font-size:0.65rem;color:#444;margin-bottom:16px;font-family:monospace">smoothed = 0.7 ×
+                  current + 0.3 × previous &nbsp;|&nbsp; 3프레임 80+ → 셔터 활성화</div>
+                <div style="display:flex;flex-direction:column;gap:10px">
+                  <div style="display:grid;grid-template-columns:120px 1fr 48px;gap:8px;align-items:center">
+                    <div>
+                      <div style="height:4px;background:#111;border-radius:2px;overflow:hidden">
+                        <div style="width:48px;height:100%;background:#00E5FF;border-radius:2px"></div>
+                      </div><span style="font-size:0.65rem;color:#00E5FF">15%</span>
+                    </div>
+                    <div>
+                      <div style="font-size:0.72rem;color:#aaa">형상 유사도</div>
+                      <div style="font-size:0.6rem;color:#444">OpenCV matchShapes() — Hu Moments</div>
+                    </div>
+                    <div style="font-size:0.6rem;color:#555;text-align:right">&lt;1ms</div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:120px 1fr 48px;gap:8px;align-items:center">
+                    <div>
+                      <div style="height:4px;background:#111;border-radius:2px;overflow:hidden">
+                        <div style="width:96px;height:100%;background:#00FF88;border-radius:2px"></div>
+                      </div><span style="font-size:0.65rem;color:#00FF88">30%</span>
+                    </div>
+                    <div>
+                      <div style="font-size:0.72rem;color:#aaa">특징점 매칭</div>
+                      <div style="font-size:0.6rem;color:#444">ORB 250키포인트 + BFMatcher + RANSAC</div>
+                    </div>
+                    <div style="font-size:0.6rem;color:#555;text-align:right">8~15ms</div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:120px 1fr 48px;gap:8px;align-items:center">
+                    <div>
+                      <div style="height:4px;background:#111;border-radius:2px;overflow:hidden">
+                        <div style="width:64px;height:100%;background:#FFD600;border-radius:2px"></div>
+                      </div><span style="font-size:0.65rem;color:#FFD600">20%</span>
+                    </div>
+                    <div>
+                      <div style="font-size:0.72rem;color:#aaa">위치·프레이밍</div>
+                      <div style="font-size:0.6rem;color:#444">무게중심 vs 화면 중앙 유클리드 거리</div>
+                    </div>
+                    <div style="font-size:0.6rem;color:#555;text-align:right">&lt;1ms</div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:120px 1fr 48px;gap:8px;align-items:center">
+                    <div>
+                      <div style="height:4px;background:#111;border-radius:2px;overflow:hidden">
+                        <div style="width:64px;height:100%;background:#FF6B35;border-radius:2px"></div>
+                      </div><span style="font-size:0.65rem;color:#FF6B35">20%</span>
+                    </div>
+                    <div>
+                      <div style="font-size:0.72rem;color:#aaa">크기·거리</div>
+                      <div style="font-size:0.6rem;color:#444">검출 윤곽 면적 vs 목표 면적 비율</div>
+                    </div>
+                    <div style="font-size:0.6rem;color:#555;text-align:right">&lt;1ms</div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:120px 1fr 48px;gap:8px;align-items:center">
+                    <div>
+                      <div style="height:4px;background:#111;border-radius:2px;overflow:hidden">
+                        <div style="width:48px;height:100%;background:#C77DFF;border-radius:2px"></div>
+                      </div><span style="font-size:0.65rem;color:#C77DFF">15%</span>
+                    </div>
+                    <div>
+                      <div style="font-size:0.72rem;color:#aaa">각도 보정</div>
+                      <div style="font-size:0.6rem;color:#444">decomposeHomographyMat() 카메라 틸트</div>
+                    </div>
+                    <div style="font-size:0.6rem;color:#555;text-align:right">1~3ms</div>
+                  </div>
+                </div>
+                <!-- 처리 시간 예산 -->
+                <div
+                  style="margin-top:16px;border-top:1px solid #1a1a1a;padding-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                  <div style="display:flex;justify-content:space-between;font-size:0.65rem"><span style="color:#444">이미지
+                      전처리</span><span style="color:#555">1~2ms</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:0.65rem"><span
+                      style="color:#444">엣지+윤곽 검출</span><span style="color:#555">2~3ms</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:0.65rem"><span style="color:#444">ORB
+                      검출+매칭</span><span style="color:#555">8~15ms</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:0.65rem"><span
+                      style="color:#444">Homography</span><span style="color:#555">1~3ms</span></div>
+                  <div
+                    style="grid-column:1/-1;display:flex;justify-content:space-between;font-size:0.72rem;border-top:1px solid #222;padding-top:8px;margin-top:4px">
+                    <span style="color:#aaa;font-weight:700">총 처리 시간</span>
+                    <span id="arProcTime" style="color:#00FF88;font-family:'Oswald',sans-serif;font-weight:700">16~25ms
+                      (60fps)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 기술 뱃지 -->
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                <span style="padding:4px 10px;border:1px solid #00E5FF;font-size:0.65rem;color:#00E5FF">CameraX
+                  프리뷰</span>
+                <span style="padding:4px 10px;border:1px solid #00E5FF;font-size:0.65rem;color:#00E5FF">ML Kit
+                  EfficientDet</span>
+                <span style="padding:4px 10px;border:1px solid #00E5FF;font-size:0.65rem;color:#00E5FF">OpenCV
+                  ORB/RANSAC</span>
+                <span style="padding:4px 10px;border:1px solid #22c55e;font-size:0.65rem;color:#22c55e">GPS 자동기록</span>
+                <span style="padding:4px 10px;border:1px solid #FEBD17;font-size:0.65rem;color:#FEBD17">CLOVA TTS
+                  음성</span>
+                <span style="padding:4px 10px;border:1px solid #FEBD17;font-size:0.65rem;color:#FEBD17">햅틱 200Hz+</span>
+                <span style="padding:4px 10px;border:1px solid #FF5252;font-size:0.65rem;color:#FF5252">셔터 자동잠금</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- AR 시뮬레이터 JavaScript -->
+      <style>
+        @keyframes scanline {
+          0% {
+            top: -2px;
+          }
+
+          100% {
+            top: 100%;
+          }
+        }
+
+        .ar-tab:hover {
+          color: #FEBD17 !important;
+        }
+      </style>
+      <script>
+          (function () {
+            // ── 씬 데이터 ──
+            const SCENES = {
+              fire: {
+                name: '소방시설 점검', sub: '공동주택 소화기·감지기·유도등', icon: '🧯',
+                bg: 'linear-gradient(135deg,#1a0808 0%,#2d0d0d 60%,#120505 100%)',
+                items: [
+                  { num: '01', name: '소화기 위치·상태', detail: '벽면 고정 여부, 압력게이지 녹색 확인', badge: 'ML 인식' },
+                  { num: '02', name: '감지기 오염·탈락', detail: '천장 부착 상태, 먼지 커버 여부', badge: '각도 가이드' },
+                  { num: '03', name: '유도등 점등 여부', detail: '비상구 표시 발광 상태 확인', badge: '조도 측정' },
+                  { num: '04', name: '스프링클러 헤드', detail: '변형·막힘·페인트 도포 여부', badge: '근접 촬영' },
+                ],
+                voices: ['소화기를 화면 중앙에 맞춰주세요', '조금 더 가까이 다가가세요', '완료! 다음 항목으로 이동합니다'],
+                tags: ['🔴 소화기 감지됨', '🟡 소화기 — 정렬 중', '🟢 소화기 — 촬영 완료!'],
+                procTime: '16~25ms (60fps)',
+                engine: 'ML Kit + EfficientDet-Lite0 + ORB',
+                modelDetail: 'EfficientDet-Lite0 (4.4MB, INT8 양자화) — Roboflow Universe 소화기 데이터셋 + 커스텀 파인튜닝',
+                trainingData: '📷 학습 데이터: 소화기 300~500장, 감지기 300장, 유도등 300장',
+              },
+              road: {
+                name: '도로·교통시설 점검', sub: '맨홀·볼라드·도로파손·노면표시', icon: '🛣️',
+                bg: 'linear-gradient(135deg,#0a1808 0%,#0d2108 60%,#091305 100%)',
+                items: [
+                  { num: '01', name: '맨홀 뚜껑 상태', detail: '파손·함몰·돌출 여부, 덮개 잠금 상태', badge: '수직촬영' },
+                  { num: '02', name: '볼라드 파손·기울기', detail: '차량 충돌 흔적, 기울기 5° 이상', badge: '각도 AI' },
+                  { num: '03', name: '도로 균열·파손', detail: '포트홀 크기 자동 측정 (cm 단위)', badge: '크기측정' },
+                  { num: '04', name: '노면표시 마모', detail: '횡단보도·정지선 시인성 확인', badge: '조감 가이드' },
+                ],
+                voices: ['맨홀 위 수직으로 화면을 맞춰주세요', '조금 뒤로 물러서 주세요', '완료! GPS 좌표가 기록되었습니다'],
+                tags: ['🔴 맨홀 감지됨', '🟡 맨홀 — 정렬 중', '🟢 맨홀 — 촬영 완료!'],
+                procTime: '20~30ms (30fps)',
+                engine: 'ML Kit + EfficientDet-Lite0 + Hough Circle',
+                modelDetail: 'EfficientDet-Lite0 파인튜닝 + OpenCV HoughCircles 원형 감지, RANSAC findHomography 수직 각도 보정',
+                trainingData: '📷 학습 데이터: 맨홀 500장, 볼라드 400장, 도로균열 300장',
+              },
+              park: {
+                name: '공원·보행로 안전시설', sub: '난간·CCTV·보안등·벤치', icon: '🏞️',
+                bg: 'linear-gradient(135deg,#080f1a 0%,#0d1a2d 60%,#050d14 100%)',
+                items: [
+                  { num: '01', name: '난간 고정 상태', detail: '볼트 이완, 부식, 흔들림 여부', badge: '수평 가이드' },
+                  { num: '02', name: 'CCTV 각도·작동', detail: '카메라 방향, 적색 LED 점등 확인', badge: '렌즈 포커스' },
+                  { num: '03', name: '보안등 파손', detail: '커버 파손, 조명 점등 여부 (야간)', badge: '야간 모드' },
+                  { num: '04', name: '바닥 미끄럼 방지', detail: '우레탄 코팅 박리, 물고임 확인', badge: '근접 촬영' },
+                ],
+                voices: ['난간을 화면 가로로 맞춰주세요', '수평이 거의 맞았습니다', '완료! 보고서가 자동 생성됩니다'],
+                tags: ['🔴 난간 감지됨', '🟡 난간 — 정렬 중', '🟢 난간 — 촬영 완료!'],
+                procTime: '18~28ms (45fps)',
+                engine: 'ML Kit + EfficientDet-Lite0 + Hough Line',
+                modelDetail: 'EfficientDet-Lite0 + OpenCV HoughLinesP 수평선 감지, decomposeHomographyMat() 기울기 보정',
+                trainingData: '📷 학습 데이터: 난간 400장, CCTV 300장, 보안등 300장',
+              },
+            };
+
+            const STEPS = [
+              { score: 30, color: '#FF5252', badge: 'STEP 1/3 — 위치 조정 필요', dots: [1, 0, 0, 0], voice: 0, shutter: '🔒', alignText: '정렬 30% — 셔터 잠금' },
+              { score: 65, color: '#FFD600', badge: 'STEP 2/3 — 각도 보정 중', dots: [1, 1, 1, 0], voice: 1, shutter: '🔒', alignText: '정렬 65% — 조금 더!' },
+              { score: 92, color: '#00FF88', badge: 'STEP 3/3 — 자동 촬영 준비', dots: [1, 1, 1, 1], voice: 2, shutter: '📷', alignText: '✅ 정렬 92% — 셔터 해제!' },
+            ];
+
+            let currentScene = 'fire';
+            let currentStep = 0;
+            let autoTimer = null;
+
+            function setArStep(step) {
+              currentStep = step;
+              const scene = SCENES[currentScene];
+              const cfg = STEPS[step];
+              // 색상 업데이트
+              ['arBorder', 'arCornerTL', 'arCornerTR', 'arCornerBL', 'arCornerBR'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.style.borderColor = cfg.color; }
+              });
+              document.getElementById('arStepBadge').style.color = cfg.color;
+              document.getElementById('arStepBadge').textContent = cfg.badge;
+              document.getElementById('arObjTag').textContent = scene.tags[step];
+              document.getElementById('arObjTag').style.background = cfg.color;
+              document.getElementById('arScoreBar').style.height = cfg.score + '%';
+              document.getElementById('arScoreBar').style.background = cfg.color;
+              document.getElementById('arScoreVal').textContent = cfg.score + '%';
+              document.getElementById('arScoreVal').style.color = cfg.color;
+              document.getElementById('arVoice').textContent = scene.voices[step];
+              document.getElementById('arShutter').textContent = cfg.shutter;
+              document.getElementById('arShutter').style.borderColor = cfg.color;
+              document.getElementById('arAlignText').textContent = cfg.alignText;
+              document.getElementById('arAlignText').style.color = cfg.color;
+              // 체크 점
+              for (let i = 0; i < 4; i++) {
+                document.getElementById('arDot' + i).style.background = cfg.dots[i] ? cfg.color : '#333';
+              }
+              // 버튼 활성화
+              for (let i = 0; i < 3; i++) {
+                const btn = document.getElementById('arBtn' + i);
+                if (i === step) {
+                  btn.style.borderColor = STEPS[i].color;
+                  btn.style.background = STEPS[i].color + '22';
+                  btn.style.color = STEPS[i].color;
+                } else {
+                  btn.style.borderColor = '#333';
+                  btn.style.background = 'transparent';
+                  btn.style.color = '#555';
+                }
+              }
+            }
+
+            function switchArScene(key) {
+              currentScene = key;
+              currentStep = 0;
+              const scene = SCENES[key];
+              // 탭 업데이트
+              ['fire', 'road', 'park'].forEach(k => {
+                const tab = document.getElementById('arTab-' + k);
+                if (k === key) {
+                  tab.style.borderBottomColor = '#FEBD17';
+                  tab.style.background = 'rgba(254,189,23,0.06)';
+                  tab.style.color = '#FEBD17';
+                } else {
+                  tab.style.borderBottomColor = 'transparent';
+                  tab.style.background = 'transparent';
+                  tab.style.color = '#555';
+                }
+              });
+              // 씬 정보 업데이트
+              document.getElementById('arCamBg').style.background = scene.bg;
+              document.getElementById('arSceneIcon').textContent = scene.icon;
+              document.getElementById('arSceneName').textContent = scene.name;
+              document.getElementById('arSceneSub').textContent = scene.sub;
+              document.getElementById('arEngine').textContent = scene.engine;
+              document.getElementById('arModelDetail').textContent = scene.modelDetail;
+              document.getElementById('arTraining').textContent = scene.trainingData;
+              document.getElementById('arProcTime').textContent = scene.procTime;
+              // 체크리스트
+              const list = document.getElementById('arCheckList');
+              list.innerHTML = scene.items.map(item => `
+              <div style="display:flex;align-items:flex-start;gap:12px;padding:10px;background:#0a0a0a;border:1px solid #1a1a1a;border-left:3px solid #FEBD17">
+                <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:0.8rem;color:#FEBD17;min-width:24px">${item.num}</div>
+                <div style="flex:1">
+                  <div style="font-size:0.82rem;color:#fff;font-weight:600;margin-bottom:2px">${item.name}</div>
+                  <div style="font-size:0.72rem;color:#555">${item.detail}</div>
+                </div>
+                <span style="padding:2px 8px;border:1px solid #333;font-size:0.6rem;color:#aaa;white-space:nowrap">${item.badge}</span>
+              </div>
+            `).join('');
+              setArStep(0);
+              // 자동 롤링 재시작
+              clearInterval(autoTimer);
+              autoTimer = setInterval(() => {
+                setArStep(((currentStep + 1) % 3));
+              }, 1750);
+            }
+
+            // 시계
+            function updateTime() {
+              const now = new Date();
+              const t = now.toTimeString().slice(0, 8);
+              const el = document.getElementById('arTime');
+              if (el) el.textContent = t;
+            }
+            setInterval(updateTime, 1000);
+            updateTime();
+
+            // ── 카운터 롤링 ──
+            const TARGETS = [847, 1203, 492, 2542, 2431];
+            let counters = [0, 0, 0, 0, 0];
+            const SPEED = 38;
+            function tickCounters() {
+              let anyAlive = false;
+              TARGETS.forEach((t, i) => {
+                if (counters[i] < t) {
+                  counters[i] = Math.min(counters[i] + SPEED, t);
+                  const el = document.getElementById('cnt' + i);
+                  if (el) el.textContent = counters[i].toLocaleString();
+                  anyAlive = true;
+                }
+              });
+              if (anyAlive) requestAnimationFrame(tickCounters);
+              // 이후 계속 +1~5씩 소폭 증가 시뮬
+            }
+            setTimeout(tickCounters, 300);
+
+            // 소폭 증가 (숫자 살아있는 느낌)
+            setInterval(() => {
+              const deltas = [2, 3, 1, 6, 5];
+              deltas.forEach((d, i) => {
+                counters[i] += d;
+                const el = document.getElementById('cnt' + i);
+                if (el) el.textContent = counters[i].toLocaleString();
+              });
+            }, 1800);
+
+            // ── 실시간 로그 롤링 ──
+            const LOGS = [
+              '[서울·강남] 소화기 점검 완료 — 3-Shot 검증 통과 · GPS 37.4979°N',
+              '[인천·남동] 맨홀 파손 감지 → HWP 자동 생성 완료',
+              '[부산·해운대] 볼라드 기울기 7° 이상 감지 → 즉시 알림 발송',
+              '[대구·중구] 공원 보안등 미점등 — 야간 모드 촬영 완료',
+              '[수원·영통] 도로 포트홀 크기 측정 : 가로 18cm × 세로 12cm',
+              '[경기·성남] 스프링클러 헤드 이상 없음 — 정렬 점수 94%',
+              '[서울·마포] 횡단보도 노면표시 마모 70% — 보고서 생성',
+              '[대전·유성] 난간 볼트 이완 감지 → 긴급 Spot Injection 완료',
+            ];
+            let logIdx = 0;
+            function rollLog() {
+              const el = document.getElementById('liveLog');
+              if (el) {
+                el.style.opacity = '0';
+                setTimeout(() => {
+                  el.textContent = LOGS[logIdx % LOGS.length];
+                  el.style.opacity = '1';
+                  el.style.transition = 'opacity 0.4s';
+                }, 300);
+                logIdx++;
+              }
+            }
+            rollLog();
+            setInterval(rollLog, 2800);
+
+            // 초기화
+            switchArScene('fire');
+            // 씬 자동 순환
+            let sceneIdx = 0;
+            const SCENE_KEYS = ['fire', 'road', 'park'];
+            setInterval(() => {
+              sceneIdx = (sceneIdx + 1) % 3;
+              switchArScene(SCENE_KEYS[sceneIdx]);
+            }, 8000);
+          })();
+      </script>
+
+
 
       <!-- B2B 단독 플랜 -->
       <section id="contact" style="padding:100px 0;background:#0F0F0F">

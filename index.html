@@ -832,11 +832,20 @@
           <!-- 씬 탭 -->
           <div style="display:flex;gap:0;margin-bottom:40px;border-bottom:2px solid #1a1a1a" id="arTabs">
             <button id="arTab-fire" class="ar-tab ar-tab-active" onclick="window.switchArScene('fire')"
-              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 24px;border:none;cursor:pointer;border-bottom:3px solid #FEBD17;background:rgba(254,189,23,0.06);color:#FEBD17;transition:all 0.2s">소방시설</button>
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 20px;border:none;cursor:pointer;border-bottom:3px solid #FEBD17;background:rgba(254,189,23,0.06);color:#FEBD17;transition:all 0.2s">💡
+              가로등 점검</button>
             <button id="arTab-road" class="ar-tab" onclick="window.switchArScene('road')"
-              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 24px;border:none;cursor:pointer;border-bottom:3px solid transparent;background:transparent;color:#555;transition:all 0.2s">도로·교통</button>
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 20px;border:none;cursor:pointer;border-bottom:3px solid transparent;background:transparent;color:#555;transition:all 0.2s">🛣️
+              도로·교통</button>
             <button id="arTab-park" class="ar-tab" onclick="window.switchArScene('park')"
-              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 24px;border:none;cursor:pointer;border-bottom:3px solid transparent;background:transparent;color:#555;transition:all 0.2s">공원·보행로</button>
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 20px;border:none;cursor:pointer;border-bottom:3px solid transparent;background:transparent;color:#555;transition:all 0.2s">🏞️
+              공원·보행로</button>
+            <button id="arTab-clean" class="ar-tab" onclick="window.switchArScene('clean')"
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 20px;border:none;cursor:pointer;border-bottom:3px solid transparent;background:transparent;color:#555;transition:all 0.2s">📋
+              클린 데이터</button>
+            <button id="arTab-smart" class="ar-tab" onclick="window.switchArScene('smart')"
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.82rem;letter-spacing:0.06em;padding:12px 20px;border:none;cursor:pointer;border-bottom:3px solid transparent;background:transparent;color:#555;transition:all 0.2s">🔌
+              스마트 인프라</button>
           </div>
 
           <!-- 메인 레이아웃: 폰 + 우측 패널 -->
@@ -847,13 +856,10 @@
               <!-- 폰 외형 -->
               <div id="arPhone"
                 style="width:240px;height:480px;background:#000;border-radius:28px;border:3px solid #333;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(254,189,23,0.12),0 0 120px rgba(0,0,0,0.8)">
-                <!-- 카메라 배경 그라디언트 -->
-                <div id="arCamBg"
-                  style="position:absolute;inset:0;background:linear-gradient(135deg,#0a1628 0%,#0d2137 60%,#091420 100%);transition:background 0.6s">
+                <!-- 카메라 배경: 실제 현장 사진 + 단계별 애니메이션 -->
+                <div id="arCamBg" class="ar-cam-bg cam-step0 scene-fire-bg"
+                  style="position:absolute;inset:-8px;overflow:hidden;transform-origin:center center;transition:filter 0.6s ease,transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94);background-size:cover;background-position:center">
                 </div>
-                <!-- 단계별 AR 이미지 오버레이 -->
-                <img id="arStepImg" src="ar-step0.png" alt="AR step"
-                  style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.82;transition:opacity 0.4s,src 0.3s">
                 <!-- 그리드 오버레이 -->
                 <div
                   style="position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,255,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.06) 1px,transparent 1px);background-size:30px 30px;pointer-events:none">
@@ -1129,65 +1135,228 @@
         .ar-tab:hover {
           color: #FEBD17 !important;
         }
+
+        /* ─── 카메라 배경 기본 ─── */
+        .ar-cam-bg {
+          background-size: cover !important;
+          background-position: center !important;
+        }
+
+        /* ─── Step 0: 미정렬 — 흔들림 + 블러 ─── */
+        .cam-step0 {
+          animation: camShake 0.4s ease-in-out infinite;
+          filter: blur(2.5px) brightness(0.7) saturate(0.7);
+        }
+
+        /* ─── Step 1: 정렬 중 — 천천히 안정화 ─── */
+        .cam-step1 {
+          animation: camSettle 1.2s ease-out forwards;
+          filter: blur(0.6px) brightness(0.88) saturate(0.9);
+          transform: scale(1.05) translate(1px, 0px) rotate(0.3deg);
+        }
+
+        /* ─── Step 2: 촬영 완료 — 완벽 고정 + 밝아짐 ─── */
+        .cam-step2 {
+          animation: camLock 0.4s ease-out forwards;
+          filter: blur(0) brightness(1.05) saturate(1.15);
+          transform: scale(1) translate(0, 0) rotate(0deg);
+        }
+
+        @keyframes camShake {
+          0% {
+            transform: scale(1.12) translate(6px, -4px) rotate(-1.8deg);
+          }
+
+          15% {
+            transform: scale(1.13) translate(-5px, 3px) rotate(1.5deg);
+          }
+
+          30% {
+            transform: scale(1.11) translate(4px, -6px) rotate(-1.2deg);
+          }
+
+          45% {
+            transform: scale(1.14) translate(-3px, 5px) rotate(2deg);
+          }
+
+          60% {
+            transform: scale(1.12) translate(7px, -2px) rotate(-0.8deg);
+          }
+
+          75% {
+            transform: scale(1.11) translate(-6px, 1px) rotate(1.6deg);
+          }
+
+          100% {
+            transform: scale(1.12) translate(6px, -4px) rotate(-1.8deg);
+          }
+        }
+
+        @keyframes camSettle {
+          0% {
+            transform: scale(1.10) translate(5px, -3px) rotate(-1deg);
+            filter: blur(1.5px) brightness(0.78);
+          }
+
+          40% {
+            transform: scale(1.07) translate(2px, -1px) rotate(0.5deg);
+            filter: blur(0.8px) brightness(0.84);
+          }
+
+          70% {
+            transform: scale(1.05) translate(0.5px, 0) rotate(0.2deg);
+            filter: blur(0.4px) brightness(0.88);
+          }
+
+          100% {
+            transform: scale(1.05) translate(1px, 0) rotate(0.3deg);
+            filter: blur(0.6px) brightness(0.88);
+          }
+        }
+
+        @keyframes camLock {
+          0% {
+            transform: scale(1.04) translate(0.5px, 0) rotate(0.1deg);
+            filter: blur(0.3px) brightness(0.94);
+          }
+
+          40% {
+            transform: scale(1.01) translate(0, 0) rotate(0deg);
+            filter: blur(0) brightness(1.1);
+          }
+
+          70% {
+            transform: scale(0.995) translate(0, 0) rotate(0deg);
+            filter: blur(0) brightness(1.12);
+          }
+
+          100% {
+            transform: scale(1) translate(0, 0) rotate(0deg);
+            filter: blur(0) brightness(1.05) saturate(1.15);
+          }
+        }
+
+        /* ─── 씬별 배경 이미지 ─── */
+        .scene-fire-bg {
+          background-image:
+            linear-gradient(160deg, rgba(0, 20, 0, 0.45) 0%, rgba(0, 0, 0, 0.2) 60%, rgba(0, 30, 10, 0.5) 100%),
+            url('scene-fire.png');
+        }
+
+        .scene-road-bg {
+          background-image:
+            linear-gradient(180deg, rgba(0, 10, 20, 0.4) 0%, rgba(0, 0, 0, 0.15) 50%, rgba(10, 20, 10, 0.55) 100%),
+            url('scene-road.png');
+        }
+
+        .scene-park-bg {
+          background-image:
+            linear-gradient(160deg, rgba(0, 20, 10, 0.35) 0%, rgba(0, 0, 0, 0.2) 60%, rgba(10, 20, 0, 0.45) 100%),
+            url('scene-park.png');
+        }
+
+        .scene-clean-bg {
+          background-image:
+            linear-gradient(160deg, rgba(30, 10, 0, 0.45) 0%, rgba(0, 0, 0, 0.2) 60%, rgba(20, 5, 0, 0.5) 100%),
+            url('scene-clean.png');
+        }
+
+        .scene-smart-bg {
+          background-image:
+            linear-gradient(160deg, rgba(0, 10, 30, 0.45) 0%, rgba(0, 0, 0, 0.2) 60%, rgba(0, 20, 30, 0.5) 100%),
+            url('scene-smart.png');
+        }
       </style>
       <script>
           (function () {
-            // ── 씬 데이터 ──
+            // ── 씬 데이터 (silver-app 표본 기반) ──
             const SCENES = {
               fire: {
-                name: '소방시설 점검', sub: '공동주택 소화기·감지기·유도등', icon: '🧯',
-                bg: 'linear-gradient(135deg,#1a0808 0%,#2d0d0d 60%,#120505 100%)',
+                name: '가로등 점검', sub: '공동주택 보안등·스마트등·가로등주', icon: '💡',
+                bgClass: 'scene-fire-bg',
                 items: [
-                  { num: '01', name: '소화기 위치·상태', detail: '벽면 고정 여부, 압력게이지 녹색 확인', badge: 'ML 인식' },
-                  { num: '02', name: '감지기 오염·탈락', detail: '천장 부착 상태, 먼지 커버 여부', badge: '각도 가이드' },
-                  { num: '03', name: '유도등 점등 여부', detail: '비상구 표시 발광 상태 확인', badge: '조도 측정' },
-                  { num: '04', name: '스프링클러 헤드', detail: '변형·막힘·페인트 도포 여부', badge: '근접 촬영' },
+                  { num: '01', name: '등기동 외관 상태', detail: '구조물 파손·기울기·스티커 부착 여부', badge: 'ML 인식', badgeColor: '#00E5FF' },
+                  { num: '02', name: '등기구 유리 파손', detail: '등유리 파손·할로겐등·오염 알림', badge: '기울기 AI', badgeColor: '#00FF88' },
+                  { num: '03', name: 'LED 점등 여부', detail: '주간 점등 감지·단선 퓨즈 상태 확인', badge: '조도 측정', badgeColor: '#FFD600' },
+                  { num: '04', name: '전력선·코드 상태', detail: '피복 손상·노출 금속 접점 부식 확인', badge: '근접 촬영', badgeColor: '#FF6B35' },
                 ],
-                voices: ['소화기를 화면 중앙에 맞춰주세요', '조금 더 가까이 다가가세요', '완료! 다음 항목으로 이동합니다'],
-                tags: ['🔴 소화기 감지됨', '🟡 소화기 — 정렬 중', '🟢 소화기 — 촬영 완료!'],
-                procTime: '16~25ms (60fps)',
+                voices: ['가로등 등기동을 화면 중앙에 맞춰주세요', '조금 더 가까이 다가가세요', '완료! 다음 항목으로 이동합니다'],
+                tags: ['🔴 가로등 감지됨', '🟡 가로등 — 정렬 중', '🟢 가로등 — 촬영 완료!'],
+                procTime: '14~22ms (60fps)',
                 engine: 'ML Kit + EfficientDet-Lite0 + ORB',
-                modelDetail: 'EfficientDet-Lite0 (4.4MB, INT8 양자화) — Roboflow Universe 소화기 데이터셋 + 커스텀 파인튜닝',
-                trainingData: '📷 학습 데이터: 소화기 300~500장, 감지기 300장, 유도등 300장',
+                modelDetail: 'EfficientDet-Lite0 (4.4MB, INT8 양자화) — Roboflow Universe 가로등 데이터셋 + 커스텀 파인튜닝',
+                trainingData: '📷 학습 데이터: 가로등 등기동 400~600장, 등기구 300장, LED 어셈블리 300장 · Google Colab 무료 GPU 1~3시간',
               },
               road: {
-                name: '도로·교통시설 점검', sub: '맨홀·볼라드·도로파손·노면표시', icon: '🛣️',
-                bg: 'linear-gradient(135deg,#0a1808 0%,#0d2108 60%,#091305 100%)',
+                name: '도로·교통 점검', sub: '차선 마모·보도블록 파손·킥보드 위치', icon: '🛣️',
+                bgClass: 'scene-road-bg',
                 items: [
-                  { num: '01', name: '맨홀 뚜껑 상태', detail: '파손·함몰·돌출 여부, 덮개 잠금 상태', badge: '수직촬영' },
-                  { num: '02', name: '볼라드 파손·기울기', detail: '차량 충돌 흔적, 기울기 5° 이상', badge: '각도 AI' },
-                  { num: '03', name: '도로 균열·파손', detail: '포트홀 크기 자동 측정 (cm 단위)', badge: '크기측정' },
-                  { num: '04', name: '노면표시 마모', detail: '횡단보도·정지선 시인성 확인', badge: '조감 가이드' },
+                  { num: '01', name: '차선 마모 상태', detail: '횡단보도·정지선 시인성, 마모율 자동 측정', badge: '면적 AI', badgeColor: '#00E5FF' },
+                  { num: '02', name: '보도블록 파손', detail: '블록 파손·함몰·들뜸 여부, 보행 위험 판정', badge: '균열 감지', badgeColor: '#00FF88' },
+                  { num: '03', name: '킥보드 불법 거치', detail: '보행자 통행 방해 위치 GPS 태깅', badge: 'GPS 기록', badgeColor: '#FFD600' },
+                  { num: '04', name: '맨홀·볼라드 상태', detail: '파손·함몰·기울기 5° 이상 이상 감지', badge: '수직촬영', badgeColor: '#FF6B35' },
                 ],
-                voices: ['맨홀 위 수직으로 화면을 맞춰주세요', '조금 뒤로 물러서 주세요', '완료! GPS 좌표가 기록되었습니다'],
-                tags: ['🔴 맨홀 감지됨', '🟡 맨홀 — 정렬 중', '🟢 맨홀 — 촬영 완료!'],
+                voices: ['차선 위 수직으로 화면을 맞춰주세요', '조금 뒤로 물러서 주세요', '완료! GPS 좌표가 기록되었습니다'],
+                tags: ['🔴 도로 이상 감지됨', '🟡 도로 — 정렬 중', '🟢 도로 — 촬영 완료!'],
                 procTime: '20~30ms (30fps)',
                 engine: 'ML Kit + EfficientDet-Lite0 + Hough Circle',
                 modelDetail: 'EfficientDet-Lite0 파인튜닝 + OpenCV HoughCircles 원형 감지, RANSAC findHomography 수직 각도 보정',
-                trainingData: '📷 학습 데이터: 맨홀 500장, 볼라드 400장, 도로균열 300장',
+                trainingData: '📷 학습 데이터: 차선 500장, 보도블록 400장, 킥보드 300장 · 공공도로 실측 촬영 데이터',
               },
               park: {
                 name: '공원·보행로 안전시설', sub: '난간·CCTV·보안등·벤치', icon: '🏞️',
-                bg: 'linear-gradient(135deg,#080f1a 0%,#0d1a2d 60%,#050d14 100%)',
+                bgClass: 'scene-park-bg',
                 items: [
-                  { num: '01', name: '난간 고정 상태', detail: '볼트 이완, 부식, 흔들림 여부', badge: '수평 가이드' },
-                  { num: '02', name: 'CCTV 각도·작동', detail: '카메라 방향, 적색 LED 점등 확인', badge: '렌즈 포커스' },
-                  { num: '03', name: '보안등 파손', detail: '커버 파손, 조명 점등 여부 (야간)', badge: '야간 모드' },
-                  { num: '04', name: '바닥 미끄럼 방지', detail: '우레탄 코팅 박리, 물고임 확인', badge: '근접 촬영' },
+                  { num: '01', name: '난간 고정 상태', detail: '볼트 이완, 부식, 흔들림 여부', badge: '수평 가이드', badgeColor: '#00E5FF' },
+                  { num: '02', name: 'CCTV 각도·작동', detail: '카메라 방향, 적색 LED 점등 확인', badge: '렌즈 포커스', badgeColor: '#00FF88' },
+                  { num: '03', name: '보안등 파손', detail: '커버 파손, 조명 점등 여부 (야간)', badge: '야간 모드', badgeColor: '#FFD600' },
+                  { num: '04', name: '바닥 미끄럼 방지', detail: '우레탄 코팅 박리, 물고임 확인', badge: '근접 촬영', badgeColor: '#FF6B35' },
                 ],
                 voices: ['난간을 화면 가로로 맞춰주세요', '수평이 거의 맞았습니다', '완료! 보고서가 자동 생성됩니다'],
                 tags: ['🔴 난간 감지됨', '🟡 난간 — 정렬 중', '🟢 난간 — 촬영 완료!'],
                 procTime: '18~28ms (45fps)',
                 engine: 'ML Kit + EfficientDet-Lite0 + Hough Line',
                 modelDetail: 'EfficientDet-Lite0 + OpenCV HoughLinesP 수평선 감지, decomposeHomographyMat() 기울기 보정',
-                trainingData: '📷 학습 데이터: 난간 400장, CCTV 300장, 보안등 300장',
+                trainingData: '📷 학습 데이터: 난간 400장, CCTV 300장, 보안등 300장 · 공원·보행로 실측 촬영 데이터',
+              },
+              clean: {
+                name: '클린 데이터 채증', sub: '불법 전단지·현수막·광고물 수거', icon: '📋',
+                bgClass: 'scene-clean-bg',
+                items: [
+                  { num: '01', name: '불법 전단지 채증', detail: '전신주·외벽 부착 전단지 위치·수량 기록', badge: 'OCR 인식', badgeColor: '#00E5FF' },
+                  { num: '02', name: '현수막 위반 여부', detail: '무허가 현수막 설치 구역 위반 판별', badge: '구역 AI', badgeColor: '#00FF88' },
+                  { num: '03', name: '광고물 수거 확인', detail: '수거 전·후 비교 촬영, 완료 서명 처리', badge: '비교 촬영', badgeColor: '#FFD600' },
+                  { num: '04', name: '관리번호 태깅', detail: '위반 광고물에 고유 관리번호 자동 부여', badge: 'GPS 기록', badgeColor: '#FF6B35' },
+                ],
+                voices: ['전단지가 부착된 면을 정면으로 맞춰주세요', '글자가 선명하게 보이도록 조정해주세요', '완료! 불법 광고물이 기록되었습니다'],
+                tags: ['🔴 광고물 감지됨', '🟡 광고물 — 정렬 중', '🟢 광고물 — 채증 완료!'],
+                procTime: '25~40ms (30fps)',
+                engine: 'ML Kit Text Recognition + EfficientDet-Lite0',
+                modelDetail: 'ML Kit Text Recognition v2 (OCR) + EfficientDet-Lite0 광고물 분류 — Google Vision API 연동',
+                trainingData: '📷 학습 데이터: 전단지 500장, 현수막 400장, 광고물 구역 데이터 300건 · 서울시 옥외광고물 공개 데이터',
+              },
+              smart: {
+                name: '스마트 인프라 점검', sub: '공공 WiFi·전기차충전소·그늘막', icon: '🔌',
+                bgClass: 'scene-smart-bg',
+                items: [
+                  { num: '01', name: '전기차 충전소 상태', detail: '충전기 파손·케이블 단선·LED 상태 표시', badge: 'ML 인식', badgeColor: '#00E5FF' },
+                  { num: '02', name: '공공 WiFi AP 점검', detail: '안테나 파손·설치 방향·표시 스티커 확인', badge: '신호 AI', badgeColor: '#00FF88' },
+                  { num: '03', name: '그늘막 설치 상태', detail: '지주 기울기·패브릭 파손·고정 볼트 여부', badge: '기울기 측정', badgeColor: '#FFD600' },
+                  { num: '04', name: '공공시설 QR 태그', detail: 'QR코드 훼손·부착 위치 이탈 여부 확인', badge: 'QR 스캔', badgeColor: '#FF6B35' },
+                ],
+                voices: ['충전기를 화면 중앙에 수직으로 맞춰주세요', '조금 더 가까이 다가가세요', '완료! 시설 상태가 기록되었습니다'],
+                tags: ['🔴 충전소 감지됨', '🟡 충전소 — 정렬 중', '🟢 충전소 — 촬영 완료!'],
+                procTime: '16~26ms (45fps)',
+                engine: 'ML Kit + EfficientDet-Lite0 + QR Scanner',
+                modelDetail: 'EfficientDet-Lite0 + ML Kit Barcode Scanning (QR) + OpenCV 기울기 감지',
+                trainingData: '📷 학습 데이터: 충전소 400장, WiFi AP 300장, 그늘막 300장 · 공공인프라 실측 촬영 데이터',
               },
             };
 
             const STEPS = [
-              { score: 30, color: '#FF5252', badge: 'STEP 1/3 — 위치 조정 필요', dots: [1, 0, 0, 0], voice: 0, shutter: '🔒', alignText: '정렬 30% — 셔터 잠금' },
-              { score: 65, color: '#FFD600', badge: 'STEP 2/3 — 각도 보정 중', dots: [1, 1, 1, 0], voice: 1, shutter: '🔒', alignText: '정렬 65% — 조금 더!' },
-              { score: 92, color: '#00FF88', badge: 'STEP 3/3 — 자동 촬영 준비', dots: [1, 1, 1, 1], voice: 2, shutter: '📷', alignText: '✅ 정렬 92% — 셔터 해제!' },
+              { score: 30, color: '#FF5252', badge: 'STEP 1/3 — 위치 조정 필요', dots: [1, 0, 0, 0], voice: 0, shutter: '🔒', alignText: '정렬 30% — 셔터 잠금', camClass: 'cam-step0' },
+              { score: 65, color: '#FFD600', badge: 'STEP 2/3 — 각도 보정 중', dots: [1, 1, 1, 0], voice: 1, shutter: '🔒', alignText: '정렬 65% — 조금 더!', camClass: 'cam-step1' },
+              { score: 92, color: '#00FF88', badge: 'STEP 3/3 — 자동 촬영 준비', dots: [1, 1, 1, 1], voice: 2, shutter: '📷', alignText: '✅ 정렬 92% — 셔터 해제!', camClass: 'cam-step2' },
             ];
 
             let currentScene = 'fire';
@@ -1198,14 +1367,11 @@
               currentStep = step;
               const scene = SCENES[currentScene];
               const cfg = STEPS[step];
-              // 단계별 이미지 전환 (페이드)
-              const img = document.getElementById('arStepImg');
-              if (img) {
-                img.style.opacity = '0';
-                setTimeout(function () {
-                  img.src = 'ar-step' + step + '.png';
-                  img.style.opacity = '0.82';
-                }, 250);
+              // 카메라 배경 CSS 클래스 전환 (애니메이션)
+              const camBg = document.getElementById('arCamBg');
+              if (camBg) {
+                camBg.classList.remove('cam-step0', 'cam-step1', 'cam-step2');
+                camBg.classList.add(cfg.camClass);
               }
               // 색상 업데이트
               ['arBorder', 'arCornerTL', 'arCornerTR', 'arCornerBL', 'arCornerBR'].forEach(id => {
@@ -1248,9 +1414,10 @@
               currentScene = key;
               currentStep = 0;
               const scene = SCENES[key];
-              // 탭 업데이트
-              ['fire', 'road', 'park'].forEach(k => {
+              // 탭 업데이트 (5개)
+              ['fire', 'road', 'park', 'clean', 'smart'].forEach(k => {
                 const tab = document.getElementById('arTab-' + k);
+                if (!tab) return;
                 if (k === key) {
                   tab.style.borderBottomColor = '#FEBD17';
                   tab.style.background = 'rgba(254,189,23,0.06)';
@@ -1261,8 +1428,13 @@
                   tab.style.color = '#555';
                 }
               });
+              // 카메라 배경 씬 전환 (CSS 클래스)
+              const camBg = document.getElementById('arCamBg');
+              if (camBg) {
+                camBg.classList.remove('scene-fire-bg', 'scene-road-bg', 'scene-park-bg', 'scene-clean-bg', 'scene-smart-bg');
+                camBg.classList.add(scene.bgClass);
+              }
               // 씬 정보 업데이트
-              document.getElementById('arCamBg').style.background = scene.bg;
               document.getElementById('arSceneIcon').textContent = scene.icon;
               document.getElementById('arSceneName').textContent = scene.name;
               document.getElementById('arSceneSub').textContent = scene.sub;
@@ -1279,14 +1451,14 @@
                   <div style="font-size:0.82rem;color:#fff;font-weight:600;margin-bottom:2px">${item.name}</div>
                   <div style="font-size:0.72rem;color:#555">${item.detail}</div>
                 </div>
-                <span style="padding:2px 8px;border:1px solid #333;font-size:0.6rem;color:#aaa;white-space:nowrap">${item.badge}</span>
+                <span style="padding:2px 8px;border:1px solid ${item.badgeColor};font-size:0.6rem;color:${item.badgeColor};white-space:nowrap">${item.badge}</span>
               </div>
             `).join('');
-              setArStep(0);
+              window.setArStep(0);
               // 자동 롤링 재시작
               clearInterval(autoTimer);
               autoTimer = setInterval(() => {
-                setArStep(((currentStep + 1) % 3));
+                window.setArStep(((currentStep + 1) % 3));
               }, 1750);
             }
 

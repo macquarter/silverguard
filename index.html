@@ -298,23 +298,61 @@
             기반 스마트시티 데이터 관제 플랫폼</span>
         </div>
       </div>
-      <!-- 네비 탭 -->
-      <div class="flex gap-0">
-        <button onclick="switchTab('home')" id="tab-home" class="tab-btn active-tab px-4 py-2 text-black"
+      <!-- 데스크톱 네비 탭 (md 이상) -->
+      <div class="hidden md:flex gap-0" role="tablist" aria-label="메인 메뉴">
+        <button type="button" role="tab" aria-selected="true" aria-controls="content-home" onclick="switchTab('home')" id="tab-home" class="tab-btn active-tab px-4 py-2 text-black"
+          title="HOME — 메인 화면" aria-label="HOME — 메인 화면"
           style="background:#FEBD17;font-family:'Oswald',sans-serif;font-weight:700;font-size:0.85rem;letter-spacing:0.06em">HOME</button>
-        <button onclick="switchTab('ir')" id="tab-ir" class="tab-btn px-4 py-2 transition"
+        <button type="button" role="tab" aria-selected="false" aria-controls="content-ir" onclick="switchTab('ir')" id="tab-ir" class="tab-btn px-4 py-2 transition"
+          title="BUSINESS — 시설관리 업체·투자자용 IR" aria-label="BUSINESS — 시설관리 업체·투자자용 IR"
           style="background:transparent;color:#aaa;border-left:1px solid rgba(255,255,255,0.08);font-family:'Oswald',sans-serif;font-weight:600;font-size:0.85rem;letter-spacing:0.06em"
           onmouseover="if(!this.classList.contains('active-tab')){this.style.color='#FEBD17';this.style.background='rgba(254,189,23,0.08)'}"
           onmouseout="if(!this.classList.contains('active-tab')){this.style.color='#aaa';this.style.background='transparent'}">BUSINESS</button>
-        <button onclick="switchTab('admin')" id="tab-admin" class="tab-btn px-4 py-2 transition"
+        <button type="button" role="tab" aria-selected="false" aria-controls="content-admin" onclick="switchTab('admin')" id="tab-admin" class="tab-btn px-4 py-2 transition"
+          title="CONTROL — 관제 데모 화면" aria-label="CONTROL — 관제 데모 화면"
           style="background:transparent;color:#aaa;border-left:1px solid rgba(255,255,255,0.08);font-family:'Oswald',sans-serif;font-weight:600;font-size:0.85rem;letter-spacing:0.06em"
           onmouseover="if(!this.classList.contains('active-tab')){this.style.color='#FEBD17';this.style.background='rgba(254,189,23,0.08)'}"
           onmouseout="if(!this.classList.contains('active-tab')){this.style.color='#aaa';this.style.background='transparent'}">CONTROL</button>
-        <button onclick="switchTab('data')" id="tab-data" class="tab-btn px-4 py-2 transition"
+        <button type="button" role="tab" aria-selected="false" aria-controls="content-data" onclick="switchTab('data')" id="tab-data" class="tab-btn px-4 py-2 transition"
+          title="DATA — 공공 API 연동 뷰어" aria-label="DATA — 공공 API 연동 뷰어"
           style="background:transparent;color:#aaa;border-left:1px solid rgba(255,255,255,0.08);font-family:'Oswald',sans-serif;font-weight:600;font-size:0.85rem;letter-spacing:0.06em"
           onmouseover="if(!this.classList.contains('active-tab')){this.style.color='#FEBD17';this.style.background='rgba(254,189,23,0.08)'}"
           onmouseout="if(!this.classList.contains('active-tab')){this.style.color='#aaa';this.style.background='transparent'}">DATA</button>
       </div>
+      <!-- 모바일 햄버거 토글 (md 미만) -->
+      <button type="button" id="mobile-menu-toggle" class="md:hidden flex items-center justify-center" onclick="toggleMobileMenu()"
+        aria-label="메뉴 열기" aria-expanded="false" aria-controls="mobile-menu"
+        style="width:48px;height:48px;background:transparent;border:1px solid rgba(254,189,23,0.4);color:#FEBD17;cursor:pointer">
+        <i id="mobile-menu-icon" class="ri-menu-line" style="font-size:1.4rem"></i>
+      </button>
+    </div>
+    <!-- 모바일 풀스크린 메뉴 패널 -->
+    <div id="mobile-menu" class="md:hidden" role="dialog" aria-modal="true" aria-label="모바일 메인 메뉴" style="display:none;position:fixed;top:64px;left:0;right:0;bottom:0;background:rgba(10,10,15,0.98);backdrop-filter:blur(24px);z-index:49;flex-direction:column;align-items:stretch;padding:24px 16px;overflow-y:auto">
+      <button type="button" onclick="switchTab('home');toggleMobileMenu()" class="mobile-tab-btn"
+        style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:20px 24px;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.06);color:#fff;cursor:pointer;text-align:left">
+        <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.4rem;letter-spacing:0.06em;color:#FEBD17">HOME</span>
+        <span style="font-family:'Pretendard',sans-serif;font-size:0.85rem;color:#888">메인 화면</span>
+      </button>
+      <button type="button" onclick="switchTab('ir');toggleMobileMenu()" class="mobile-tab-btn"
+        style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:20px 24px;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.06);color:#fff;cursor:pointer;text-align:left">
+        <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.4rem;letter-spacing:0.06em;color:#FEBD17">BUSINESS</span>
+        <span style="font-family:'Pretendard',sans-serif;font-size:0.85rem;color:#888">시설관리 업체·투자자용 IR</span>
+      </button>
+      <button type="button" onclick="switchTab('admin');toggleMobileMenu()" class="mobile-tab-btn"
+        style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:20px 24px;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.06);color:#fff;cursor:pointer;text-align:left">
+        <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.4rem;letter-spacing:0.06em;color:#FEBD17">CONTROL</span>
+        <span style="font-family:'Pretendard',sans-serif;font-size:0.85rem;color:#888">관제 데모 화면</span>
+      </button>
+      <button type="button" onclick="switchTab('data');toggleMobileMenu()" class="mobile-tab-btn"
+        style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:20px 24px;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.06);color:#fff;cursor:pointer;text-align:left">
+        <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.4rem;letter-spacing:0.06em;color:#FEBD17">DATA</span>
+        <span style="font-family:'Pretendard',sans-serif;font-size:0.85rem;color:#888">공공 API 연동 뷰어</span>
+      </button>
+      <a href="mailto:contact@silverguard.ai.kr"
+        style="margin-top:24px;display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 24px;background:#FEBD17;color:#000;font-family:'Oswald',sans-serif;font-weight:700;font-size:1.1rem;letter-spacing:0.08em;text-decoration:none">
+        <i class="ri-mail-line"></i>
+        문의하기
+      </a>
     </div>
   </nav>
 
@@ -359,8 +397,8 @@
               <span class="relative inline-flex rounded-full h-2.5 w-2.5" style="background:#FEBD17"></span>
             </span>
             <span
-              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.8rem;letter-spacing:0.1em;color:#FEBD17">LIVE
-              · 11만개 공공 데이터 실시간 수신중</span>
+              style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.8rem;letter-spacing:0.1em;color:#FEBD17">PoC
+              · 11만개 공공 API 연동 검증 완료</span>
           </div>
 
           <div
@@ -382,12 +420,16 @@
           </div>
 
           <div class="flex flex-col sm:flex-row gap-4 fade-in-up">
-            <button onclick="switchTab('admin')"
+            <button type="button" onclick="switchTab('admin')"
+              title="CONTROL 탭으로 이동 — 관제 데모 화면 보기"
+              aria-label="CONTROL 탭으로 이동: 관제 센터 데모"
               style="background:#FEBD17;color:#000;font-family:'Oswald',sans-serif;font-weight:700;font-size:1.2rem;letter-spacing:0.1em;text-transform:uppercase;padding:19px 43px;border:none;cursor:pointer;transition:all 0.15s"
               onmouseover="this.style.background='#E5A800'" onmouseout="this.style.background='#FEBD17'">
               관제 센터 체험 &gt;&gt;
             </button>
-            <button onclick="switchTab('ir')"
+            <button type="button" onclick="switchTab('ir')"
+              title="BUSINESS 탭으로 이동 — IR 자료 보기"
+              aria-label="BUSINESS 탭으로 이동: 투자자용 IR 자료"
               style="background:transparent;color:#fff;font-family:'Oswald',sans-serif;font-weight:600;font-size:1.2rem;letter-spacing:0.1em;text-transform:uppercase;padding:19px 43px;border:2px solid #444;cursor:pointer;transition:all 0.15s"
               onmouseover="this.style.borderColor='#FEBD17';this.style.color='#FEBD17'"
               onmouseout="this.style.borderColor='#444';this.style.color='#fff'">
@@ -417,7 +459,7 @@
             <div class="text-center hover-lift" style="padding:36px 16px;border-right:1px solid rgba(254,189,23,0.1)">
               <p class="dw-stat-num"
                 style="font-size:2.8rem;margin-bottom:6px;text-shadow:0 0 30px rgba(254,189,23,0.5)">11만개+</p>
-              <p style="font-size:0.72rem;color:#888;letter-spacing:0.1em;text-transform:uppercase">공공 API 실시간 수신</p>
+              <p style="font-size:0.72rem;color:#888;letter-spacing:0.1em;text-transform:uppercase">공공 API 연동 데이터셋</p>
             </div>
             <div class="text-center hover-lift" style="padding:36px 16px;border-right:1px solid rgba(254,189,23,0.1)">
               <p class="dw-stat-num"
@@ -586,10 +628,12 @@
           <div
             style="background:#111;border:1px solid #2a2a2a;border-left:4px solid #FEBD17;padding:32px;text-align:center">
             <p style="color:#aaa;font-size:1.05rem;line-height:1.7">
-              실버가드는 <strong style="color:#FEBD17">11만개 공공 데이터</strong>를 실시간 수신하며 도시의 위험을 선제 감지합니다.<br>
+              실버가드는 <strong style="color:#FEBD17">11만개 공공 API</strong>를 연동하여 도시의 위험을 선제적으로 감지합니다.<br>
               지금 이 순간, 확장의 설계도가 완성되어 있습니다.
             </p>
-            <button onclick="switchTab('ir')"
+            <button type="button" onclick="switchTab('ir')"
+              title="BUSINESS 탭으로 이동 — 36개월 확장 로드맵 보기"
+              aria-label="BUSINESS 탭으로 이동: 확장 전략"
               style="margin-top:24px;background:#FEBD17;color:#000;font-family:'Oswald',sans-serif;font-weight:700;font-size:0.95rem;letter-spacing:0.1em;text-transform:uppercase;padding:12px 32px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all 0.15s"
               onmouseover="this.style.background='#E5A800'" onmouseout="this.style.background='#FEBD17'">
               확장 전략 보기 <i class="ri-arrow-right-line"></i>
@@ -738,14 +782,14 @@
             <div>
               <div
                 style="font-family:'Oswald',sans-serif;font-weight:600;font-size:0.75rem;letter-spacing:0.2em;color:#FEBD17;text-transform:uppercase;margin-bottom:8px">
-                DATA INTELLIGENCE · LIVE</div>
-              <h2 style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.8rem;color:#fff">실시간 수집 데이터 현황</h2>
+                DATA INTELLIGENCE · PoC</div>
+              <h2 style="font-family:'Oswald',sans-serif;font-weight:700;font-size:1.8rem;color:#fff">데이터 수집 현황 <span style="font-size:0.65rem;color:#888;letter-spacing:0.05em">· 분당구 PoC 1·2월 누적</span></h2>
             </div>
             <div style="display:flex;align-items:center;gap:8px">
               <span
                 style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#FEBD17;animation:ping 1.2s cubic-bezier(0,0,0.2,1) infinite"></span>
-              <span style="font-family:'Oswald',sans-serif;font-size:0.8rem;color:#FEBD17;letter-spacing:0.1em">LIVE
-                수신중</span>
+              <span style="font-family:'Oswald',sans-serif;font-size:0.8rem;color:#FEBD17;letter-spacing:0.1em">PoC
+                실증중</span>
             </div>
           </div>
           <!-- 롤링 카운터 5개 -->
@@ -1604,7 +1648,9 @@
                 </div>
               </div>
             </div>
-            <button onclick="switchTab('ir')"
+            <button type="button" onclick="switchTab('ir')"
+              title="BUSINESS 탭으로 이동 — IR 자료 보기"
+              aria-label="BUSINESS 탭으로 이동: 투자자용 IR 자료"
               style="width:100%;background:#FEBD17;color:#000;font-family:'Oswald',sans-serif;font-weight:700;font-size:1rem;letter-spacing:0.1em;text-transform:uppercase;padding:16px;border:none;cursor:pointer;transition:all 0.15s"
               onmouseover="this.style.background='#E5A800'" onmouseout="this.style.background='#FEBD17'">IR 자료 보기
               →</button>
@@ -1628,8 +1674,8 @@
               </div>
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap">
-              <span style="padding:6px 14px;border:1px solid rgba(254,189,23,0.3);font-size:0.75rem;color:#aaa">11만개 데이터
-                실시간 수신중</span>
+              <span style="padding:6px 14px;border:1px solid rgba(254,189,23,0.3);font-size:0.75rem;color:#aaa">11만개 공공 API
+                연동 검증</span>
               <span style="padding:6px 14px;border:1px solid #333;font-size:0.75rem;color:#666">한국노인인력개발원 협약</span>
               <span style="padding:6px 14px;border:1px solid #FEBD17;font-size:0.75rem;color:#FEBD17">KBS 생로병사의 비밀
                 방영</span>
@@ -1640,7 +1686,7 @@
               <h5
                 style="font-family:'Oswald',sans-serif;font-weight:600;color:#fff;margin-bottom:12px;letter-spacing:0.08em">
                 CONTACT US</h5>
-              <p>contact@silverguard.co.kr</p>
+              <p><a href="mailto:contact@silverguard.ai.kr" style="color:inherit;text-decoration:none">contact@silverguard.ai.kr</a></p>
             </div>
             <div>
               <h5
@@ -1659,7 +1705,7 @@
               <p>서비스 이용약관</p>
             </div>
           </div>
-          <div style="margin-top:40px;text-align:center;font-size:0.75rem;color:#333">&copy; 2025 Silver Guard. All
+          <div style="margin-top:40px;text-align:center;font-size:0.75rem;color:#333">&copy; 2025&ndash;<span id="footer-year">2026</span> Silver Guard. All
             rights reserved.</div>
         </div>
       </footer>
@@ -1989,9 +2035,9 @@
               <i class="ri-dashboard-3-line" style="color:#FEBD17;font-size:1.2rem"></i>
             </div>
             <div>
-              <h4 style="color:#fff;font-weight:700;margin-bottom:4px;font-family:'Oswald',sans-serif">실시간 LIVE 대시보드
+              <h4 style="color:#fff;font-weight:700;margin-bottom:4px;font-family:'Oswald',sans-serif">PoC 실증 대시보드
               </h4>
-              <p style="color:#555;font-size:0.85rem">요원 활동 현황 및 월별 점검 목표 달성 트렌드 실시간 시각화.</p>
+              <p style="color:#555;font-size:0.85rem">요원 활동 현황 및 월별 점검 목표 달성 트렌드 시각화.</p>
             </div>
           </div>
           <div style="display:flex;gap:16px;background:#1a1a1a;padding:20px;border:1px solid #2a2a2a">
@@ -2609,6 +2655,7 @@
           b.classList.remove('active-tab');
           b.style.background = 'transparent';
           b.style.color = '#9ca3af';
+          b.setAttribute('aria-selected', 'false');
         }
       });
       const el = document.getElementById('content-' + tab);
@@ -2618,6 +2665,7 @@
         btn.classList.add('active-tab');
         btn.style.background = '#FEBD17';
         btn.style.color = '#000';
+        btn.setAttribute('aria-selected', 'true');
       }
       if (tab === 'admin' && !adminInit) initAdmin();
       if (tab === 'data') {
@@ -2626,7 +2674,40 @@
         if (dataEl) dataEl.style.display = 'flex';
         if (!liveFeedInit) initLiveFeed();
       }
+      // 모바일 메뉴 열린 상태에서 탭 전환 시 자동으로 닫힘 처리는
+      // 호출부(onclick="switchTab(...);toggleMobileMenu()")에서 처리.
+      // 페이지 상단으로 스크롤 (시니어/B2G 동선상 다음 섹션 시작점이 보이도록)
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    // ===== 모바일 메뉴 토글 (Fix 1-6) =====
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      const toggle = document.getElementById('mobile-menu-toggle');
+      const icon = document.getElementById('mobile-menu-icon');
+      if (!menu || !toggle) return;
+      const isOpen = menu.style.display === 'flex';
+      if (isOpen) {
+        menu.style.display = 'none';
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', '메뉴 열기');
+        if (icon) icon.className = 'ri-menu-line';
+        document.body.style.overflow = '';
+      } else {
+        menu.style.display = 'flex';
+        toggle.setAttribute('aria-expanded', 'true');
+        toggle.setAttribute('aria-label', '메뉴 닫기');
+        if (icon) icon.className = 'ri-close-line';
+        document.body.style.overflow = 'hidden';
+      }
+    }
+    // ESC 키로 모바일 메뉴 닫기
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        const menu = document.getElementById('mobile-menu');
+        if (menu && menu.style.display === 'flex') toggleMobileMenu();
+      }
+    });
 
     // ===== HOME: TICKER =====
     const tickerItems = [
